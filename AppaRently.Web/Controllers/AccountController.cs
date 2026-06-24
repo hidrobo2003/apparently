@@ -11,19 +11,19 @@ namespace AppaRently.Web.Client.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly IJwtTokenService _jwtTokenService;
     private readonly IUserService _userService;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IOptions<JwtOptions> _jwtOptions;
 
     public AccountController(
-        IJwtTokenService jwtTokenService,
         IUserService userService,
+        SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         IOptions<JwtOptions> jwtOptions)
     {
-        _jwtTokenService = jwtTokenService;
         _userService = userService;
+        _signInManager = signInManager;
         _userManager = userManager;
         _jwtOptions = jwtOptions;
     }
@@ -61,23 +61,10 @@ public class AccountController : Controller
             return View(request);
         }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var tokenResponse = await _jwtTokenService.CreateTokenAsync(
-            new UserResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? string.Empty,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt,
-                DeletedAt = user.DeletedAt
-            },
-            roles,
-            request.RememberMe);
-        AppendJwtCookie(tokenResponse.AccessToken, tokenResponse.ExpiresAt);
+        await _signInManager.SignInAsync(user, request.RememberMe);
+        DeleteJwtCookie();
 
-        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+        if (IsSafeReturnUrl(returnUrl))
         {
             return Redirect(returnUrl);
         }
@@ -115,22 +102,29 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
+        await _signInManager.SignOutAsync();
+        DeleteJwtCookie();
+        return RedirectToAction("Index", "Home");
+    }
+
+    private void DeleteJwtCookie()
+    {
         Response.Cookies.Delete(_jwtOptions.Value.CookieName, new CookieOptions
         {
             Path = "/"
         });
-        return RedirectToAction("Index", "Home");
     }
 
-    private void AppendJwtCookie(string token, DateTime expiresAt)
+    private bool IsSafeReturnUrl(string? returnUrl)
     {
-        Response.Cookies.Append(_jwtOptions.Value.CookieName, token, new CookieOptions
+        if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
         {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = expiresAt,
-            Path = "/"
-        });
+            return false;
+        }
+
+        var path = returnUrl.Split('?', '#')[0];
+        return !path.EndsWith("/Storage", StringComparison.OrdinalIgnoreCase) &&
+               !path.EndsWith("/Upgrade", StringComparison.OrdinalIgnoreCase) &&
+               !path.EndsWith("/Destroy", StringComparison.OrdinalIgnoreCase);
     }
 }

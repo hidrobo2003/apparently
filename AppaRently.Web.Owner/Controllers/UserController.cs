@@ -72,21 +72,29 @@ public class UserController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        return View(response.Data);
+        return View(MapToEditViewModel(response.Data));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Upgrade(string id, UserResponse user)
+    public async Task<IActionResult> Upgrade(string id, EditUserViewModel user)
     {
         if (id != user.Id || !IsCurrentUser(id))
         {
             return Forbid();
         }
 
+        if (!ModelState.IsValid)
+        {
+            return View("Edit", user);
+        }
+
         var response = await _userService.EditUserAsync(id, new EditUserRequest
         {
-            FullName = user.FullName
+            FullName = user.FullName,
+            ChangePassword = user.ChangePassword,
+            NewPassword = user.NewPassword,
+            ConfirmNewPassword = user.ConfirmNewPassword
         });
 
         if (!response.Success)
@@ -128,4 +136,18 @@ public class UserController : Controller
     private string? GetCurrentUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     private bool IsCurrentUser(string id) => string.Equals(GetCurrentUserId(), id, StringComparison.Ordinal);
+
+    private static EditUserViewModel MapToEditViewModel(UserResponse user)
+    {
+        return new EditUserViewModel
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
+        };
+    }
 }

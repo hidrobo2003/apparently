@@ -2,27 +2,26 @@ using AppaRently.App.DTOs.Users;
 using AppaRently.App.Interfaces;
 using AppaRently.Domain.Models;
 using AppaRently.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace AppaRently.Web.SuperAdmin.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly IJwtTokenService _jwtTokenService;
     private readonly IUserService _userService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IOptions<JwtOptions> _jwtOptions;
 
     public AccountController(
-        IJwtTokenService jwtTokenService,
         IUserService userService,
         UserManager<ApplicationUser> userManager,
         IOptions<JwtOptions> jwtOptions)
     {
-        _jwtTokenService = jwtTokenService;
         _userService = userService;
         _userManager = userManager;
         _jwtOptions = jwtOptions;
@@ -60,22 +59,8 @@ public class AccountController : Controller
             return View(request);
         }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var tokenResponse = await _jwtTokenService.CreateTokenAsync(
-            new UserResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? string.Empty,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt,
-                DeletedAt = user.DeletedAt
-            },
-            roles,
-            request.RememberMe);
-
-        AppendJwtCookie(tokenResponse.AccessToken, tokenResponse.ExpiresAt);
+        await SignInAsync(user, request.RememberMe);
+        DeleteJwtCookie();
 
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
@@ -113,24 +98,43 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        Response.Cookies.Delete(_jwtOptions.Value.CookieName, new CookieOptions
-        {
-            Path = "/"
-        });
+        await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+        DeleteJwtCookie();
 
         return RedirectToAction(nameof(Login));
     }
 
-    private void AppendJwtCookie(string token, DateTime expiresAt)
+    private async Task SignInAsync(ApplicationUser user, bool rememberMe)
     {
-        Response.Cookies.Append(_jwtOptions.Value.CookieName, token, new CookieOptions
+        var roles = await _userManager.GetRolesAsync(user);
+        var claims = new List<Claim>
         {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = expiresAt,
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.UserName ?? user.Email ?? string.Empty),
+            new(ClaimTypes.Email, user.Email ?? string.Empty),
+            new("full_name", user.FullName)
+        };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            IdentityConstants.ApplicationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = rememberMe
+            });
+    }
+
+    private void DeleteJwtCookie()
+    {
+        Response.Cookies.Delete(_jwtOptions.Value.CookieName, new CookieOptions
+        {
             Path = "/"
         });
     }

@@ -22,4 +22,5 @@ RUN dotnet publish "AppaRently.Web.SuperAdmin.csproj" -c $BUILD_CONFIGURATION -o
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER root
 ENTRYPOINT ["dotnet", "AppaRently.Web.SuperAdmin.dll"]

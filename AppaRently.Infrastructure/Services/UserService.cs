@@ -65,10 +65,15 @@ public sealed class UserService : IUserService
             response.Success = true;
             response.Message = "Client created successfully";
 
-            _ = await _emailNotificationService.SendAsync(
+            var mailSent = await _emailNotificationService.SendAsync(
                 response.Data.Email,
                 "Welcome to AppaRently",
                 BuildWelcomeBody(response.Data.FullName, AppaRentlyRoles.Client));
+
+            if (!mailSent)
+            {
+                response.Message = "Client created successfully, but the welcome email could not be sent.";
+            }
         }
         catch (Exception ex)
         {
@@ -88,10 +93,15 @@ public sealed class UserService : IUserService
             response.Success = true;
             response.Message = "Owner created successfully";
 
-            _ = await _emailNotificationService.SendAsync(
+            var mailSent = await _emailNotificationService.SendAsync(
                 response.Data.Email,
                 "Welcome to AppaRently",
                 BuildWelcomeBody(response.Data.FullName, AppaRentlyRoles.Owner));
+
+            if (!mailSent)
+            {
+                response.Message = "Owner created successfully, but the welcome email could not be sent.";
+            }
         }
         catch (Exception ex)
         {
@@ -127,7 +137,6 @@ public sealed class UserService : IUserService
         {
             var user = await _dbContext.Users
                 .IgnoreQueryFilters()
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
 
             if (user is null || user.DeletedAt is not null)
@@ -137,7 +146,38 @@ public sealed class UserService : IUserService
                 return response;
             }
 
-            user.FullName = request.FullName.Trim();
+            var trimmedFullName = request.FullName.Trim();
+            var shouldChangePassword = request.ChangePassword;
+            var newPassword = request.NewPassword;
+            var confirmNewPassword = request.ConfirmNewPassword;
+
+            if (shouldChangePassword)
+            {
+                if (string.IsNullOrWhiteSpace(newPassword))
+                {
+                    response.Success = false;
+                    response.Message = "New password is required when changing the password.";
+                    return response;
+                }
+
+                if (newPassword.Length < 8)
+                {
+                    response.Success = false;
+                    response.Message = "New password must be at least 8 characters long.";
+                    return response;
+                }
+
+                if (!string.Equals(newPassword, confirmNewPassword, StringComparison.Ordinal))
+                {
+                    response.Success = false;
+                    response.Message = "The new password and confirmation password do not match.";
+                    return response;
+                }
+            }
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            user.FullName = trimmedFullName;
             user.UpdatedAt = DateTime.UtcNow;
 
             var result = await _userManager.UpdateAsync(user);
@@ -147,6 +187,30 @@ public sealed class UserService : IUserService
                 response.Message = $"Error updating user: {string.Join("; ", result.Errors.Select(x => x.Description))}";
                 return response;
             }
+
+            if (shouldChangePassword)
+            {
+                if (await _userManager.HasPasswordAsync(user))
+                {
+                    var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+                    if (!removePasswordResult.Succeeded)
+                    {
+                        response.Success = false;
+                        response.Message = $"Error updating password: {string.Join("; ", removePasswordResult.Errors.Select(x => x.Description))}";
+                        return response;
+                    }
+                }
+
+                var addPasswordResult = await _userManager.AddPasswordAsync(user, newPassword!);
+                if (!addPasswordResult.Succeeded)
+                {
+                    response.Success = false;
+                    response.Message = $"Error updating password: {string.Join("; ", addPasswordResult.Errors.Select(x => x.Description))}";
+                    return response;
+                }
+            }
+
+            await transaction.CommitAsync(cancellationToken);
 
             var role = await GetUserRoleAsync(user);
             response.Data = MapToDto(user, role);

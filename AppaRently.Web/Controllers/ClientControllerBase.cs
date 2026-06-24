@@ -11,7 +11,12 @@ public abstract class ClientControllerBase : Controller
 
     protected IActionResult RedirectToLogin()
     {
-        var returnUrl = $"{Request.Path}{Request.QueryString}";
-        return RedirectToAction("Login", "Account", new { returnUrl });
+        if (HttpMethods.IsGet(Request.Method))
+        {
+            var returnUrl = $"{Request.Path}{Request.QueryString}";
+            return RedirectToAction("Login", "Account", new { returnUrl });
+        }
+
+        return RedirectToAction("Login", "Account");
     }
 }

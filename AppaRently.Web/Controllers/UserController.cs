@@ -1,8 +1,10 @@
 using AppaRently.App.DTOs.Reservations;
 using AppaRently.App.DTOs.Users;
 using AppaRently.App.Interfaces;
+using AppaRently.Domain.Models;
 using AppaRently.Infrastructure.Data;
 using AppaRently.Web.Client.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -11,16 +13,19 @@ namespace AppaRently.Web.Client.Controllers;
 public class UserController : ClientControllerBase
 {
     private readonly IReservationService _reservationService;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IOptions<JwtOptions> _jwtOptions;
     private readonly IUserService _userService;
 
     public UserController(
         IReservationService reservationService,
         IUserService userService,
+        SignInManager<ApplicationUser> signInManager,
         IOptions<JwtOptions> jwtOptions)
     {
         _reservationService = reservationService;
         _userService = userService;
+        _signInManager = signInManager;
         _jwtOptions = jwtOptions;
     }
 
@@ -63,21 +68,29 @@ public class UserController : ClientControllerBase
             return RedirectToAction("Login", "Account");
         }
 
-        return View(response.Data);
+        return View(MapToEditViewModel(response.Data));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Upgrade(string id, UserResponse user)
+    public async Task<IActionResult> Upgrade(string id, EditUserViewModel user)
     {
         if (id != user.Id || !IsCurrentUser(id))
         {
             return RedirectToLogin();
         }
 
+        if (!ModelState.IsValid)
+        {
+            return View("Edit", user);
+        }
+
         var response = await _userService.EditUserAsync(id, new EditUserRequest
         {
-            FullName = user.FullName
+            FullName = user.FullName,
+            ChangePassword = user.ChangePassword,
+            NewPassword = user.NewPassword,
+            ConfirmNewPassword = user.ConfirmNewPassword
         });
 
         if (!response.Success)
@@ -103,6 +116,7 @@ public class UserController : ClientControllerBase
         var response = await _userService.DeleteUserAsync(id);
         if (response.Success)
         {
+            await _signInManager.SignOutAsync();
             Response.Cookies.Delete(_jwtOptions.Value.CookieName, new CookieOptions
             {
                 Path = "/"
@@ -137,6 +151,20 @@ public class UserController : ClientControllerBase
         };
 
         return View("Profile", model);
+    }
+
+    private static EditUserViewModel MapToEditViewModel(UserResponse user)
+    {
+        return new EditUserViewModel
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
+        };
     }
 
 }

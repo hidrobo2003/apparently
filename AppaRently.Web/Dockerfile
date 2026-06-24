@@ -22,4 +22,5 @@ RUN dotnet publish "AppaRently.Web.Client.csproj" -c $BUILD_CONFIGURATION -o /ap
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER root
 ENTRYPOINT ["dotnet", "AppaRently.Web.Client.dll"]

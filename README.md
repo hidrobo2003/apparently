@@ -21,6 +21,10 @@ That command starts:
 - Owner portal at `http://localhost:5002`
 - SuperAdmin portal at `http://localhost:5003`
 
+When running through Docker Compose, the database is exposed on `localhost:5433` for tools like DBeaver. If you run the app outside containers, keep using your local PostgreSQL on `localhost:5432`.
+
+For real Gmail delivery, configure a valid Gmail app password in `Smtp:Password` or through `Smtp__Password`. Gmail will reject normal account passwords for SMTP in most setups.
+
 ## Seed accounts
 
 On startup, the app runs migrations and seeding automatically. If the database is empty, it creates:

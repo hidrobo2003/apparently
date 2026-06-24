@@ -1,4 +1,4 @@
-﻿@model UserResponse
+﻿@model EditUserViewModel
 @{
     ViewData["Title"] = "Edit profile";
 }
@@ -7,7 +7,7 @@
     <div class="auth-card">
         <div class="auth-card__body">
             <h1 class="h3 mb-2">Edit profile</h1>
-            <p class="muted mb-4">Update your account name.</p>
+            <p class="muted mb-4">Update your account details and optionally change your password.</p>
 
             <form asp-action="Upgrade" asp-route-id="@Model.Id" method="post">
                 @Html.AntiForgeryToken()
@@ -31,6 +31,25 @@
                     <input class="form-control" value="@Model.Email" disabled />
                 </div>
 
+                <div class="form-check mb-3">
+                    <input asp-for="ChangePassword" class="form-check-input" id="changePassword" />
+                    <label asp-for="ChangePassword" class="form-check-label">Change password</label>
+                </div>
+
+                <div id="passwordFields" class="d-none">
+                    <div class="mb-3">
+                        <label asp-for="NewPassword" class="form-label">New password</label>
+                        <input asp-for="NewPassword" class="form-control" type="password" autocomplete="new-password" data-password-field="true" />
+                        <span asp-validation-for="NewPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmNewPassword" class="form-label">Confirm new password</label>
+                        <input asp-for="ConfirmNewPassword" class="form-control" type="password" autocomplete="new-password" data-password-field="true" />
+                        <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary w-100">Save changes</button>
             </form>
         </div>
@@ -39,4 +58,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const checkbox = document.getElementById('changePassword');
+            const fields = document.getElementById('passwordFields');
+            const inputs = fields.querySelectorAll('[data-password-field="true"]');
+
+            const sync = () => {
+                const enabled = checkbox.checked;
+                fields.classList.toggle('d-none', !enabled);
+                inputs.forEach(input => {
+                    input.disabled = !enabled;
+                    if (!enabled) {
+                        input.value = '';
+                    }
+                });
+            };
+
+            checkbox.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
 }

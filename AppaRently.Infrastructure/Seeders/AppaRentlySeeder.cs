@@ -80,6 +80,7 @@ public sealed class AppaRentlySeeder
 
         if (existingUser is not null)
         {
+            await RestoreSeedUserAsync(existingUser, seed, cancellationToken);
             await EnsureUserRoleAsync(existingUser, seed.Role);
             return existingUser;
         }
@@ -107,6 +108,39 @@ public sealed class AppaRentlySeeder
         }
 
         return user;
+    }
+
+    private async Task RestoreSeedUserAsync(ApplicationUser user, SeedUserDefinition seed, CancellationToken cancellationToken)
+    {
+        user.FullName = seed.FullName.Trim();
+        user.Email = seed.Email.Trim();
+        user.UserName = seed.Email.Trim();
+        user.EmailConfirmed = true;
+        user.DeletedAt = null;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.LockoutEnd = null;
+        user.AccessFailedCount = 0;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            throw CreateSeedException($"Unable to restore user '{seed.Email}'.", updateResult.Errors);
+        }
+
+        if (await _userManager.HasPasswordAsync(user))
+        {
+            var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+            if (!removePasswordResult.Succeeded)
+            {
+                throw CreateSeedException($"Unable to reset password for '{seed.Email}'.", removePasswordResult.Errors);
+            }
+        }
+
+        var addPasswordResult = await _userManager.AddPasswordAsync(user, seed.Password);
+        if (!addPasswordResult.Succeeded)
+        {
+            throw CreateSeedException($"Unable to set password for '{seed.Email}'.", addPasswordResult.Errors);
+        }
     }
 
     private async Task EnsureUserRoleAsync(ApplicationUser user, string role)

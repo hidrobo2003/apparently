@@ -32,6 +32,11 @@ public sealed class EmailNotificationService : IEmailNotificationService
             return false;
         }
 
+        if (!IsConfigured())
+        {
+            return true;
+        }
+
         try
         {
             using var message = new MailMessage
@@ -70,5 +75,13 @@ public sealed class EmailNotificationService : IEmailNotificationService
             _logger.LogError(ex, "SMTP email could not be sent to {Recipient} with subject {Subject}", toEmail, subject);
             return false;
         }
+    }
+
+    private bool IsConfigured()
+    {
+        return !string.IsNullOrWhiteSpace(_options.Host) &&
+               !string.IsNullOrWhiteSpace(_options.FromEmail) &&
+               !string.IsNullOrWhiteSpace(_options.UserName) &&
+               !string.IsNullOrWhiteSpace(_options.Password);
     }
 }

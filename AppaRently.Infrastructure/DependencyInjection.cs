@@ -6,12 +6,14 @@ using AppaRently.Infrastructure.Services.Security;
 using AppaRently.Infrastructure.Services.Notifications;
 using AppaRently.Infrastructure.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.IO;
 using System.Text;
 using System.Security.Claims;
 
@@ -29,6 +31,12 @@ public static class DependencyInjection
         services.AddDbContext<AppaRentlyDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        var dataProtectionKeyPath = Path.Combine("/home/app", ".aspnet", "DataProtection-Keys");
+        Directory.CreateDirectory(dataProtectionKeyPath);
+        services.AddDataProtection()
+            .SetApplicationName("AppaRently")
+            .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyPath));
+
         services
             .AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<AppaRentlyDbContext>()
@@ -37,7 +45,7 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication()
             .AddJwtBearer(options =>
             {
                 var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()

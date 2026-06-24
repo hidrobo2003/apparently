@@ -15,15 +15,18 @@ public class AuthController : ControllerBase
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IUserService _userService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public AuthController(
         IJwtTokenService jwtTokenService,
         IUserService userService,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _jwtTokenService = jwtTokenService;
         _userService = userService;
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     [HttpPost("login")]
@@ -56,6 +59,8 @@ public class AuthController : ControllerBase
             roles,
             request.RememberMe);
 
+        await _signInManager.SignInAsync(user, request.RememberMe);
+
         return Ok(tokenResponse);
     }
 
@@ -72,6 +77,12 @@ public class AuthController : ControllerBase
         var tokenResponse = await _jwtTokenService.CreateTokenAsync(
             response.Data,
             new[] { response.Data.Role });
+
+        var createdUser = await _userManager.FindByEmailAsync(response.Data.Email);
+        if (createdUser is not null)
+        {
+            await _signInManager.SignInAsync(createdUser, isPersistent: true);
+        }
 
         return Ok(tokenResponse);
     }

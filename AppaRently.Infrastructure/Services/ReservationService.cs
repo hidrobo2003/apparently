@@ -144,13 +144,14 @@ public sealed class ReservationService : IReservationService
                 CheckIn = normalizedDates.CheckIn,
                 CheckOut = normalizedDates.CheckOut,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                User = user,
-                Apartment = apartment
+                UpdatedAt = DateTime.UtcNow
             };
 
             _dbContext.Reservations.Add(reservation);
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            reservation.User = user;
+            reservation.Apartment = apartment;
 
             await SendReservationCreatedEmailsAsync(reservation, cancellationToken);
             await SendReservationCreatedNotificationsAsync(reservation, cancellationToken);

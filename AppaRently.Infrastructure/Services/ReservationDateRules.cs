@@ -7,12 +7,12 @@ internal static class ReservationDateRules
 
     public static DateTime NormalizeCheckIn(DateTime date)
     {
-        return date.Date.AddHours(CheckInHour);
+        return DateTime.SpecifyKind(date.Date.AddHours(CheckInHour), DateTimeKind.Utc);
     }
 
     public static DateTime NormalizeCheckOut(DateTime date)
     {
-        return date.Date.AddHours(CheckOutHour);
+        return DateTime.SpecifyKind(date.Date.AddHours(CheckOutHour), DateTimeKind.Utc);
     }
 
     public static (DateTime CheckIn, DateTime CheckOut) NormalizeStay(DateTime checkIn, DateTime checkOut)

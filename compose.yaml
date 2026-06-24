@@ -25,6 +25,8 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__AppaRentlyDb: Host=apparently.db;Port=5432;Database=AppaRentlyDb;Username=postgres;Password=postgres
+    volumes:
+      - apparently-dp-keys:/home/app/.aspnet/DataProtection-Keys
     depends_on:
       apparently.db:
         condition: service_healthy
@@ -39,6 +41,8 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__AppaRentlyDb: Host=apparently.db;Port=5432;Database=AppaRentlyDb;Username=postgres;Password=postgres
+    volumes:
+      - apparently-dp-keys:/home/app/.aspnet/DataProtection-Keys
     depends_on:
       apparently.db:
         condition: service_healthy
@@ -53,9 +57,12 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__AppaRentlyDb: Host=apparently.db;Port=5432;Database=AppaRentlyDb;Username=postgres;Password=postgres
+    volumes:
+      - apparently-dp-keys:/home/app/.aspnet/DataProtection-Keys
     depends_on:
       apparently.db:
         condition: service_healthy
 
 volumes:
   apparently-db-data:
+  apparently-dp-keys:
