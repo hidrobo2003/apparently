@@ -9,6 +9,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["AppaRently.Web.Owner/AppaRently.Web.Owner.csproj", "AppaRently.Web.Owner/"]
 COPY ["AppaRently.Infrastructure/AppaRently.Infrastructure.csproj", "AppaRently.Infrastructure/"]
+COPY ["AppaRently.Domain/AppaRently.Domain.csproj", "AppaRently.Domain/"]
 RUN dotnet restore "AppaRently.Web.Owner/AppaRently.Web.Owner.csproj"
 COPY . .
 WORKDIR "/src/AppaRently.Web.Owner"

@@ -6,7 +6,7 @@ Short-stay rental platform built with ASP.NET Core on .NET 10, with three MVC fr
 
 - Docker and Docker Compose
 - .NET 10 SDK, only if you want to run the solution outside containers
-- PostgreSQL, only if you want to run the database manually outside Docker
+- PostgreSQL installed locally and running on `localhost:5432`
 
 ## Start the environment
 
@@ -50,7 +50,7 @@ The app uses one shared data model and three separate UIs, with common startup i
 - Soft delete with cascade: deleting a client, apartment, or owner archives dependent records to preserve history.
 - In-app notifications: each portal exposes an inbox, unread counter, and mark-as-read actions.
 - Business metrics: owner and superadmin portals expose revenue, potential revenue, occupancy, profitability, average reservation value, average stay, and unique tenants, with selectable reporting periods.
-- Docker-first startup: the full stack starts with a single command and uses PostgreSQL as a dedicated service.
+- Docker-first startup: the full stack starts with a single command and uses your local PostgreSQL instance as the shared database.
 
 ## Useful areas
 
