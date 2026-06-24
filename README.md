@@ -1,62 +1,62 @@
 # AppaRently
 
-Plataforma de rentas cortas construida en ASP.NET Core sobre .NET 10, con tres frontends MVC y una capa de infraestructura compartida para persistencia, seeding y reglas de negocio.
+Short-stay rental platform built with ASP.NET Core on .NET 10, with three MVC frontends and a shared infrastructure layer for persistence, seeding, and business rules.
 
-## Requisitos previos
+## Prerequisites
 
-- Docker y Docker Compose
-- .NET 10 SDK, solo si quieres ejecutar fuera de contenedores
-- PostgreSQL, solo si quieres levantarlo manualmente fuera de Docker
+- Docker and Docker Compose
+- .NET 10 SDK, only if you want to run the solution outside containers
+- PostgreSQL, only if you want to run the database manually outside Docker
 
-## Levantar el entorno
+## Start the environment
 
 ```bash
 docker compose up --build
 ```
 
-Ese comando levanta:
+That command starts:
 
-- Base de datos PostgreSQL
-- Portal cliente en `http://localhost:5001`
-- Portal owner en `http://localhost:5002`
-- Portal superadmin en `http://localhost:5003`
+- PostgreSQL database
+- Client portal at `http://localhost:5001`
+- Owner portal at `http://localhost:5002`
+- SuperAdmin portal at `http://localhost:5003`
 
-## Cuentas seed
+## Seed accounts
 
-El arranque ejecuta migraciones y seed automáticamente. Si no existen datos, crea:
+On startup, the app runs migrations and seeding automatically. If the database is empty, it creates:
 
 - Super admin: `superadmin@apparently.local`
 - Owner 1: `lukreroll1@gmail.com`
 - Owner 2: `lukreroll2@gmail.com`
-- Password por defecto: `AppaRently123!`
+- Default password: `AppaRently123!`
 
-Además, cada owner recibe 3 apartments de ejemplo.
+Each owner also receives 3 sample apartments.
 
-## Arquitectura
+## Architecture
 
-- `AppaRently.Domain`: entidades del dominio y reglas de soft delete
-- `AppaRently.App`: contratos, DTOs e interfaces de servicios
-- `AppaRently.Infrastructure`: EF Core, migraciones, repositorios/servicios, seeders y notificaciones
-- `AppaRently.Web`: portal cliente
-- `AppaRently.Web.Owner`: portal de propietarios
-- `AppaRently.Web.SuperAdmin`: portal administrativo
+- `AppaRently.Domain`: domain entities and soft-delete rules
+- `AppaRently.App`: contracts, DTOs, and service interfaces
+- `AppaRently.Infrastructure`: EF Core, migrations, services, seeders, and notifications
+- `AppaRently.Web`: client portal
+- `AppaRently.Web.Owner`: owner portal
+- `AppaRently.Web.SuperAdmin`: administrative portal
 
-La app usa un solo esquema de datos compartido y tres UI separadas, con inicialización común desde `SeedAppaRentlyAsync()`.
+The app uses one shared data model and three separate UIs, with common startup initialization through `SeedAppaRentlyAsync()`.
 
-## Decisiones técnicas relevantes
+## Key technical decisions
 
-- Disponibilidad estricta: las reservas se validan contra solapamientos y los filtros de búsqueda por rango excluyen apartments ocupados.
-- Horarios estándar: toda reserva se normaliza a `02:00 PM` para check-in y `12:00 PM` para check-out.
-- Soft delete con cascada: al eliminar client, apartment u owner se archivan sus dependencias para mantener consistencia histórica.
-- Notificaciones dentro de la app: cada portal muestra inbox, conteo de no leídas y acciones para marcar leído.
-- Métricas de negocio: owner y superadmin exponen revenue, revenue potencial, occupancy, profitability, average reservation value, average stay y tenants únicos, con periodo seleccionable.
-- Docker: todo el stack se arranca con un solo comando y usa PostgreSQL como servicio dedicado.
+- Strict availability: reservations are validated against overlaps, and date-range apartment searches exclude occupied apartments.
+- Standardized times: every reservation is normalized to `2:00 PM` check-in and `12:00 PM` check-out.
+- Soft delete with cascade: deleting a client, apartment, or owner archives dependent records to preserve history.
+- In-app notifications: each portal exposes an inbox, unread counter, and mark-as-read actions.
+- Business metrics: owner and superadmin portals expose revenue, potential revenue, occupancy, profitability, average reservation value, average stay, and unique tenants, with selectable reporting periods.
+- Docker-first startup: the full stack starts with a single command and uses PostgreSQL as a dedicated service.
 
-## Rutas útiles
+## Useful areas
 
-- Cliente: catálogo, favoritos, reservas y notificaciones
-- Owner: dashboard, inventario, exportación Excel y notificaciones
-- SuperAdmin: usuarios, apartments, métricas y notificaciones
+- Client: catalog, favorites, reservations, and notifications
+- Owner: dashboard, inventory, Excel export, and notifications
+- SuperAdmin: users, apartments, metrics, and notifications
 
-Hecho por:
+Made by:
 Andrés Hidrobo
