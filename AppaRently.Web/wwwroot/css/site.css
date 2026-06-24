@@ -1,0 +1,363 @@
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f3f5f2;
+  color: #16202a;
+}
+
+a {
+  color: #1d6a5a;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #12493d;
+}
+
+.btn-primary {
+  background-color: #1d6a5a;
+  border-color: #1d6a5a;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #155243;
+  border-color: #155243;
+}
+
+.btn-outline-primary {
+  color: #1d6a5a;
+  border-color: #1d6a5a;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: #1d6a5a;
+  border-color: #1d6a5a;
+}
+
+.btn-outline-dark {
+  color: #344054;
+  border-color: #c6cbd2;
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:focus {
+  background-color: #344054;
+  border-color: #344054;
+}
+
+.page-shell {
+  min-height: 100vh;
+}
+
+.site-header,
+.site-footer {
+  background: #fff;
+}
+
+.site-footer {
+  color: #667085;
+}
+
+.hero {
+  position: relative;
+  min-height: calc(100vh - 150px);
+  display: flex;
+  align-items: stretch;
+  background:
+    linear-gradient(120deg, rgba(10, 20, 26, 0.82), rgba(10, 20, 26, 0.35)),
+    url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1800&q=80")
+      center/cover no-repeat;
+  color: #fff;
+}
+
+.hero__inner {
+  width: 100%;
+  display: flex;
+  align-items: end;
+  padding: 4rem 0;
+}
+
+.hero__content {
+  max-width: 760px;
+}
+
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  letter-spacing: 0;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  line-height: 0.98;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 992px) {
+  .hero h1 {
+    font-size: 4rem;
+  }
+}
+
+.hero p {
+  max-width: 58ch;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.page-section {
+  padding: 2rem 0 3rem;
+}
+
+.surface {
+  background: #fff;
+  border: 1px solid #dde3de;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(18, 25, 35, 0.04);
+}
+
+.surface__header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #eef1ee;
+}
+
+.surface__body {
+  padding: 1.25rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #16202a;
+}
+
+.section-subtitle {
+  margin: 0.35rem 0 0;
+  color: #667085;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.apartment-grid,
+.favorite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.apartment-card__media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-bottom: 1px solid #eef1ee;
+  border-radius: 8px 8px 0 0;
+  background: #eef2ef;
+}
+
+.apartment-card__media img,
+.detail-hero__image,
+.apartment-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.apartment-card,
+.favorite-card,
+.auth-card,
+.profile-card,
+.calendar-panel,
+.booking-panel {
+  background: #fff;
+  border: 1px solid #dde3de;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(18, 25, 35, 0.04);
+}
+
+.apartment-card__body,
+.favorite-card__body,
+.auth-card__body,
+.profile-card__body,
+.calendar-panel__body,
+.booking-panel__body {
+  padding: 1rem;
+}
+
+.card-meta {
+  color: #667085;
+  font-size: 0.92rem;
+}
+
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(29, 106, 90, 0.1);
+  color: #1d6a5a;
+  font-weight: 600;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+  gap: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.detail-meta {
+  color: #667085;
+}
+
+.detail-hero {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid #eef1ee;
+  border-radius: 8px 8px 0 0;
+  background: #eef2ef;
+}
+
+.apartment-thumb {
+  border-radius: 6px;
+  background: #eef2ef;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.65rem;
+}
+
+.calendar-day {
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d9dedb;
+  background: #f8faf8;
+}
+
+.calendar-day.is-today {
+  border-color: #1d6a5a;
+  background: rgba(29, 106, 90, 0.08);
+}
+
+.calendar-day.is-booked {
+  border-color: #e4b8ad;
+  background: #fff4f1;
+  color: #9f341f;
+}
+
+.calendar-day__label {
+  font-size: 0.86rem;
+  color: inherit;
+}
+
+.calendar-day__status {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.calendar-day__link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  background: #1d6a5a;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.calendar-day__link:hover {
+  color: #fff;
+  background: #155243;
+}
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  padding: 2rem 0 3rem;
+}
+
+.auth-card {
+  width: min(100%, 520px);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.table thead th {
+  color: #475467;
+  font-weight: 600;
+}
+
+.muted {
+  color: #667085;
+}

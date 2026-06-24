@@ -1,0 +1,133 @@
+﻿@model ApartmentDetailViewModel
+@{
+    ViewData["Title"] = Model.Apartment.Title;
+    var tomorrow = DateTime.Today.AddDays(1);
+    var dayAfterTomorrow = DateTime.Today.AddDays(2);
+    var imageUrl = string.IsNullOrWhiteSpace(Model.Apartment.ImageUrl)
+        ? "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=1600&q=80"
+        : Model.Apartment.ImageUrl;
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="detail-layout">
+            <div class="surface">
+                <div class="detail-hero">
+                    <img class="detail-hero__image" src="@imageUrl" alt="@Model.Apartment.Title" />
+                </div>
+                <div class="surface__body">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h1 class="detail-title">@Model.Apartment.Title</h1>
+                            <div class="detail-meta">@Model.Apartment.City, @Model.Apartment.Department</div>
+                        </div>
+                        <span class="price-badge">@Model.Apartment.Price.ToString("C") / day</span>
+                    </div>
+
+                    <p class="mb-3">@Model.Apartment.Description</p>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="surface__body p-0">
+                                <div class="muted">Address</div>
+                                <div>@Model.Apartment.Address</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="surface__body p-0">
+                                <div class="muted">Owner</div>
+                                <div>@Model.Apartment.OwnerFullName</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="surface__body p-0">
+                                <div class="muted">Favorites</div>
+                                <div>@Model.FavoriteCount</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="surface__body p-0">
+                                <div class="muted">Location</div>
+                                <div>@Model.Apartment.City, @Model.Apartment.Department</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (Model.IsFavorited)
+                        {
+                            <a asp-controller="Favorite" asp-action="Index" class="btn btn-outline-dark">
+                                View favorites
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Favorite" asp-action="Create" asp-route-apartmentId="@Model.Apartment.Id" class="btn btn-outline-dark">
+                                Add to favorites
+                            </a>
+                        }
+                        <a asp-controller="Reservation" asp-action="Create" asp-route-apartmentId="@Model.Apartment.Id" class="btn btn-primary">
+                            Reserve now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="booking-panel">
+                <div class="booking-panel__body">
+                    <h2 class="h5 mb-2">Reserve dates</h2>
+                    <p class="muted mb-3">Pick dates, then continue to confirm the reservation. Check-in is fixed at 2:00 PM and check-out at 12:00 PM.</p>
+
+                    <form asp-controller="Reservation" asp-action="Storage" method="post" class="mb-0">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="ApartmentId" value="@Model.Apartment.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label" for="CheckIn">Check-in</label>
+                            <input id="CheckIn" name="CheckIn" type="date" class="form-control" value="@(tomorrow.ToString("yyyy-MM-dd"))" min="@(DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"))" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="CheckOut">Check-out</label>
+                            <input id="CheckOut" name="CheckOut" type="date" class="form-control" value="@(dayAfterTomorrow.ToString("yyyy-MM-dd"))" min="@(DateTime.Today.AddDays(2).ToString("yyyy-MM-dd"))" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Continue to reservation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface mt-4">
+            <div class="surface__header">
+                <h2 class="section-title">Availability calendar</h2>
+                <p class="section-subtitle">Available days open the reservation flow. Booked days are blocked.</p>
+            </div>
+            <div class="surface__body">
+                <div class="calendar-grid">
+                    @foreach (var day in Model.CalendarDays)
+                    {
+                        <div class="calendar-day @(day.IsBooked ? "is-booked" : string.Empty) @(day.IsToday ? "is-today" : string.Empty)">
+                            <div class="calendar-day__label">@day.Date.ToString("ddd, MMM d")</div>
+                            @if (day.IsBooked)
+                            {
+                                <div class="calendar-day__status">Booked</div>
+                            }
+                            else
+                            {
+                                <a class="calendar-day__link"
+                                   asp-controller="Reservation"
+                                   asp-action="Create"
+                                   asp-route-apartmentId="@Model.Apartment.Id"
+                                   asp-route-checkIn="@(day.Date.ToString("yyyy-MM-dd"))"
+                                   asp-route-checkOut="@(day.Date.AddDays(1).ToString("yyyy-MM-dd"))">
+                                    Select
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,128 @@
+@model SuperAdminUserDashboardViewModel
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">SuperAdmin dashboard</span>
+            <h1 class="section-title">Users</h1>
+            <p class="section-subtitle">Registered clients and owners, excluding deleted users and other SuperAdmins.</p>
+        </div>
+        <span class="status status--neutral">@Model.Users.Count records</span>
+    </div>
+
+    <div class="surface__body">
+        <form method="get" class="form-grid">
+            <div class="field">
+                <label class="label" for="Role">Role</label>
+                <select id="Role" name="Role" class="select">
+                    @if (string.IsNullOrWhiteSpace(Model.Role))
+                    {
+                        <option value="" selected>All users</option>
+                    }
+                    else
+                    {
+                        <option value="">All users</option>
+                    }
+
+                    @if (string.Equals(Model.Role, "Client", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <option value="Client" selected>Clients</option>
+                    }
+                    else
+                    {
+                        <option value="Client">Clients</option>
+                    }
+
+                    @if (string.Equals(Model.Role, "Owner", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <option value="Owner" selected>Owners</option>
+                    }
+                    else
+                    {
+                        <option value="Owner">Owners</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="label" for="DeletedOnly">View</label>
+                <select id="DeletedOnly" name="DeletedOnly" class="select">
+                    @if (!Model.DeletedOnly)
+                    {
+                        <option value="false" selected>Active users</option>
+                        <option value="true">Deleted users</option>
+                    }
+                    else
+                    {
+                        <option value="false">Active users</option>
+                        <option value="true" selected>Deleted users</option>
+                    }
+                </select>
+            </div>
+
+            <div class="toolbar">
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <a asp-action="Index" class="btn btn-outline">Reset</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="surface">
+    <div class="surface__body">
+        @if (!Model.Users.Any())
+        {
+            <p class="muted mb-0">No users match the current filters.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="keyvalue__value">@user.FullName</div>
+                                    <div class="note mono break-word">@user.Id</div>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                                <td>
+                                    @if (user.DeletedAt is null)
+                                    {
+                                        <span class="status status--active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status status--deleted">Deleted</span>
+                                    }
+                                </td>
+                                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="toolbar">
+                                        <a asp-action="Detail" asp-route-id="@user.Id" class="btn btn-small btn-outline">Open</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

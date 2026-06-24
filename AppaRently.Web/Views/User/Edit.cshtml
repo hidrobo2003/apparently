@@ -1,0 +1,42 @@
+﻿@model UserResponse
+@{
+    ViewData["Title"] = "Edit profile";
+}
+
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__body">
+            <h1 class="h3 mb-2">Edit profile</h1>
+            <p class="muted mb-4">Update your account name.</p>
+
+            <form asp-action="Upgrade" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="Role" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="UpdatedAt" />
+                <input type="hidden" asp-for="DeletedAt" />
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" value="@Model.Email" disabled />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save changes</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

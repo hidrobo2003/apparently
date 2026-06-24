@@ -1,0 +1,45 @@
+@model LoginRequest
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="stack">
+            <div>
+                <span class="eyebrow">Access</span>
+                <h1 class="section-title">Sign in</h1>
+                <p class="section-subtitle">Use your SuperAdmin credentials to continue.</p>
+            </div>
+
+            <form method="post" class="stack">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="note"></div>
+
+                <div class="field">
+                    <label class="label" asp-for="Email"></label>
+                    <input class="input" asp-for="Email" />
+                    <span asp-validation-for="Email" class="note"></span>
+                </div>
+
+                <div class="field">
+                    <label class="label" asp-for="Password"></label>
+                    <input class="input" asp-for="Password" type="password" />
+                    <span asp-validation-for="Password" class="note"></span>
+                </div>
+
+                <label class="check-row">
+                    <input asp-for="RememberMe" />
+                    <span>Remember me</span>
+                </label>
+
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </form>
+
+            <p class="note mb-0">
+                New account? <a asp-action="Register">Register here</a>.
+            </p>
+        </div>
+    </div>
+</section>

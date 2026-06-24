@@ -1,0 +1,147 @@
+@model SuperAdminApartmentDetailViewModel
+
+@{
+    ViewData["Title"] = Model.Apartment.Title;
+    var fromValue = Model.From?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var toValue = Model.To?.ToString("yyyy-MM-dd") ?? string.Empty;
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">Apartment detail</span>
+            <h1 class="section-title">@Model.Apartment.Title</h1>
+            <p class="section-subtitle">@Model.Apartment.City, @Model.Apartment.Department</p>
+        </div>
+        <div class="toolbar">
+            <form asp-action="Destroy" asp-route-id="@Model.Apartment.Id" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">Delete apartment</button>
+            </form>
+            <a asp-action="Index" class="btn btn-outline">Back</a>
+        </div>
+    </div>
+
+    <div class="surface__body">
+        <div class="detail-grid">
+            <div class="stack">
+                <div class="surface">
+                    <div class="surface__body">
+                        <div class="keyvalue">
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Price per day</span>
+                                <span class="keyvalue__value">@Model.Apartment.Price.ToString("C")</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Owner</span>
+                                <span class="keyvalue__value">@Model.OwnerFullName</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Favorites</span>
+                                <span class="keyvalue__value">@Model.FavoriteCount</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Apartment ID</span>
+                                <span class="keyvalue__value mono break-word">@Model.Apartment.Id</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Location</span>
+                                <span class="keyvalue__value">@Model.Apartment.Address</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="surface">
+                    <div class="surface__body">
+                        <div class="stat-grid">
+                            <div class="stat">
+                                <div class="stat__label">Revenue</div>
+                                <div class="stat__value">@Model.Revenue.ToString("C")</div>
+                                <div class="stat__meta">Selected period</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Potential revenue</div>
+                                <div class="stat__value">@Model.PotentialRevenue.ToString("C")</div>
+                                <div class="stat__meta">Capacity for the selected period</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Occupancy rate</div>
+                                <div class="stat__value">@Model.OccupancyRate.ToString("0.##")%</div>
+                                <div class="stat__meta">@Model.BookedDays booked days</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Profitability</div>
+                                <div class="stat__value">@Model.ProfitabilityRate.ToString("0.##")%</div>
+                                <div class="stat__meta">Revenue versus potential revenue</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Avg. reservation</div>
+                                <div class="stat__value">@Model.AverageReservationValue.ToString("C")</div>
+                                <div class="stat__meta">Average revenue per reservation</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Avg. stay</div>
+                                <div class="stat__value">@Model.AverageStayDays.ToString("0.##") days</div>
+                                <div class="stat__meta">Average booked nights</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Tenants</div>
+                                <div class="stat__value">@Model.UniqueTenantCount</div>
+                                <div class="stat__meta">Unique users in this period</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat__label">Reservations</div>
+                                <div class="stat__value">@Model.ReservationCount</div>
+                                <div class="stat__meta">Included in this period</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stack">
+                <div class="surface">
+                    <div class="surface__header">
+                        <h2 class="section-title">Availability calendar</h2>
+                        <p class="section-subtitle">Booked days are highlighted for the next 30 days.</p>
+                    </div>
+                    <div class="surface__body">
+                        <div class="calendar-grid">
+                            @foreach (var day in Model.CalendarDays)
+                            {
+                                <div class="calendar-day @(day.IsBooked ? "calendar-day--booked" : "") @(day.IsToday ? "calendar-day--today" : "")">
+                                    <div class="calendar-day__date">@day.Date.ToString("ddd, MMM d")</div>
+                                    <div class="calendar-day__status">@(day.IsBooked ? "Booked" : "Available")</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="surface">
+                    <div class="surface__header">
+                        <h2 class="section-title">Report range</h2>
+                        <p class="section-subtitle">The period can be adjusted from the query string.</p>
+                    </div>
+                    <div class="surface__body">
+                        <form method="get" class="form-grid">
+                            <div class="field">
+                                <label class="label" for="From">From</label>
+                                <input id="From" name="From" type="date" class="input" value="@fromValue" />
+                            </div>
+                            <div class="field">
+                                <label class="label" for="To">To</label>
+                                <input id="To" name="To" type="date" class="input" value="@toValue" />
+                            </div>
+                            <div class="toolbar">
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                                <a asp-action="Detail" asp-route-id="@Model.Apartment.Id" class="btn btn-outline">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

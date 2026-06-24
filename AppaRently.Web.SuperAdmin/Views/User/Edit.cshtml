@@ -1,0 +1,43 @@
+@model UserResponse
+
+@{
+    ViewData["Title"] = "Update profile";
+}
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="stack">
+            <div>
+                <span class="eyebrow">Profile</span>
+                <h1 class="section-title">Update information</h1>
+                <p class="section-subtitle">Only your display name can be edited here.</p>
+            </div>
+
+            <form asp-action="Upgrade" asp-route-id="@Model.Id" method="post" class="stack">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="note"></div>
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="Role" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="UpdatedAt" />
+                <input type="hidden" asp-for="DeletedAt" />
+
+                <div class="field">
+                    <label class="label" asp-for="FullName"></label>
+                    <input class="input" asp-for="FullName" />
+                    <span asp-validation-for="FullName" class="note"></span>
+                </div>
+
+                <div class="field">
+                    <label class="label">Email</label>
+                    <input class="input" value="@Model.Email" disabled />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a asp-action="Profile" class="btn btn-outline">Cancel</a>
+            </form>
+        </div>
+    </div>
+</section>

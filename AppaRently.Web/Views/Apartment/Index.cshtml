@@ -1,0 +1,98 @@
+﻿@model ApartmentDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var fallbackImageUrl = "https://images.unsplash.com/photo-1560185127-6ed189bf02a2?auto=format&fit=crop&w=1200&q=80";
+    var availableFromValue = Model.Filters.AvailableFrom?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var availableToValue = Model.Filters.AvailableTo?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var minPriceValue = Model.Filters.MinPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+    var maxPriceValue = Model.Filters.MaxPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="surface mb-4">
+            <div class="surface__header">
+                <h1 class="section-title">Apartment dashboard</h1>
+                <p class="section-subtitle">Browse current apartments and narrow the results with filters.</p>
+            </div>
+            <div class="surface__body">
+                <form method="get" asp-action="Index" class="mb-0">
+                    <div class="filter-grid mb-3">
+                        <div>
+                            <label asp-for="Filters.City" class="form-label">City</label>
+                            <input asp-for="Filters.City" class="form-control" placeholder="Any city" />
+                        </div>
+                        <div>
+                            <label asp-for="Filters.Department" class="form-label">Department</label>
+                            <input asp-for="Filters.Department" class="form-control" placeholder="Any department" />
+                        </div>
+                        <div>
+                            <label asp-for="Filters.MinPrice" class="form-label">Minimum price</label>
+                            <input name="Filters.MinPrice" class="form-control" type="number" step="0.01" min="0" value="@minPriceValue" />
+                        </div>
+                        <div>
+                            <label asp-for="Filters.MaxPrice" class="form-label">Maximum price</label>
+                            <input name="Filters.MaxPrice" class="form-control" type="number" step="0.01" min="0" value="@maxPriceValue" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="Filters_AvailableFrom">Available from</label>
+                            <input id="Filters_AvailableFrom" name="Filters.AvailableFrom" class="form-control" type="date" value="@availableFromValue" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="Filters_AvailableTo">Available to</label>
+                            <input id="Filters_AvailableTo" name="Filters.AvailableTo" class="form-control" type="date" value="@availableToValue" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">Apply filters</button>
+                        <a asp-action="Index" class="btn btn-outline-dark">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (Model.Apartments.Count == 0)
+        {
+            <div class="surface">
+                <div class="surface__body">
+                    <p class="mb-0 muted">No apartments match the selected filters.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="apartment-grid">
+                @foreach (var apartment in Model.Apartments)
+                {
+                    var imageUrl = string.IsNullOrWhiteSpace(apartment.ImageUrl) ? fallbackImageUrl : apartment.ImageUrl;
+
+                    <article class="apartment-card">
+                        <div class="apartment-card__media">
+                            <img src="@imageUrl" alt="@apartment.Title" loading="lazy" />
+                        </div>
+                        <div class="apartment-card__body">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <div>
+                                    <h2 class="h5 mb-1">@apartment.Title</h2>
+                                    <div class="card-meta">@apartment.City, @apartment.Department</div>
+                                </div>
+                                <span class="price-badge">@apartment.Price.ToString("C") / day</span>
+                            </div>
+
+                            <p class="mb-3">@apartment.Description</p>
+
+                            <div class="card-meta mb-3">
+                                <div>@apartment.Address</div>
+                                <div>Owner: @apartment.OwnerFullName</div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a asp-action="Detail" asp-route-id="@apartment.Id" class="btn btn-primary">View details</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

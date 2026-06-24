@@ -1,0 +1,73 @@
+@inject IAppNotificationService NotificationService
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AppaRently SuperAdmin</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <a class="brand" asp-controller="Home" asp-action="Index">AppaRently SuperAdmin</a>
+
+            <nav class="topbar__nav">
+                @{
+                    var unreadNotifications = 0;
+                    if (User.Identity?.IsAuthenticated == true && User.IsInRole(AppaRentlyRoles.SuperAdmin))
+                    {
+                        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        if (!string.IsNullOrWhiteSpace(userId))
+                        {
+                            unreadNotifications = await NotificationService.CountUnreadAsync(userId);
+                        }
+                    }
+                }
+                @if (User.Identity?.IsAuthenticated == true && User.IsInRole(AppaRentlyRoles.SuperAdmin))
+                {
+                    <a class="topbar__link" asp-controller="User" asp-action="Index">Users</a>
+                    <a class="topbar__link" asp-controller="Apartment" asp-action="Index">Apartments</a>
+                    <a class="topbar__link" asp-controller="User" asp-action="Profile">Profile</a>
+                    <a class="topbar__link" asp-controller="Notification" asp-action="Index">
+                        Notifications
+                        @if (unreadNotifications > 0)
+                        {
+                            <span class="badge rounded-pill bg-danger ms-1">@unreadNotifications</span>
+                        }
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-ghost btn-small">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="topbar__link" asp-controller="Account" asp-action="Login">Login</a>
+                    <a class="topbar__link" asp-controller="Account" asp-action="Register">Register</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="container">
+            @if (TempData["Message"] is string message && !string.IsNullOrWhiteSpace(message))
+            {
+                var success = bool.TryParse(TempData["Success"]?.ToString(), out var isSuccess) && isSuccess;
+                <div class="alert @(success ? "alert--success" : "alert--danger")">@message</div>
+            }
+
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <span>SuperAdmin Portal</span>
+            <span>Minimal operations dashboard</span>
+        </div>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

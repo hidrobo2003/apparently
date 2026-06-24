@@ -1,0 +1,70 @@
+@model SuperAdminProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">Profile</span>
+            <h1 class="section-title">@Model.SuperAdmin.FullName</h1>
+            <p class="section-subtitle">Your account is only visible to you.</p>
+        </div>
+        <div class="toolbar">
+            <a asp-action="Edit" asp-route-id="@Model.SuperAdmin.Id" class="btn btn-primary">Update information</a>
+            <form asp-action="Destroy" asp-route-id="@Model.SuperAdmin.Id" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                @if (Model.CanDeleteAccount)
+                {
+                    <button type="submit" class="btn btn-danger">Delete account</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-danger" disabled>Delete account</button>
+                }
+            </form>
+            <a asp-action="Index" class="btn btn-outline">Back</a>
+        </div>
+    </div>
+
+    <div class="surface__body">
+        <div class="detail-grid">
+            <div class="surface">
+                <div class="surface__body">
+                    <div class="keyvalue">
+                        <div class="keyvalue__item">
+                            <span class="keyvalue__label">Email</span>
+                            <span class="keyvalue__value">@Model.SuperAdmin.Email</span>
+                        </div>
+                        <div class="keyvalue__item">
+                            <span class="keyvalue__label">Role</span>
+                            <span class="keyvalue__value">@Model.SuperAdmin.Role</span>
+                        </div>
+                        <div class="keyvalue__item">
+                            <span class="keyvalue__label">Created at</span>
+                            <span class="keyvalue__value">@Model.SuperAdmin.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                        </div>
+                        <div class="keyvalue__item">
+                            <span class="keyvalue__label">Updated at</span>
+                            <span class="keyvalue__value">@Model.SuperAdmin.UpdatedAt?.ToString("yyyy-MM-dd HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="surface">
+                <div class="surface__body">
+                    @if (Model.CanDeleteAccount)
+                    {
+                        <p class="note mb-0">Another active SuperAdmin exists, so this account can be removed.</p>
+                    }
+                    else
+                    {
+                        <p class="note mb-0">This is the last active SuperAdmin account. Deletion is blocked.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

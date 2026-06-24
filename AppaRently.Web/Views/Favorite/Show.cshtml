@@ -1,0 +1,20 @@
+﻿@model FavoriteResponse
+@{
+    ViewData["Title"] = "Favorite";
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="surface">
+            <div class="surface__body">
+                <h1 class="h3 mb-3">@Model.ApartmentTitle</h1>
+                <p class="muted mb-4">@Model.ApartmentAddress</p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Apartment" asp-action="Detail" asp-route-id="@Model.ApartmentId" class="btn btn-primary">View apartment</a>
+                    <a asp-action="Index" class="btn btn-outline-dark">Back to favorites</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

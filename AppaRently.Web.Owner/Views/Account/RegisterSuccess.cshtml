@@ -1,0 +1,29 @@
+@model UserResponse
+@{
+    ViewData["Title"] = "Registration complete";
+    var loginUrl = Url.Action("Login", "Account") ?? "/";
+}
+
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__body">
+            <span class="eyebrow">Owner access</span>
+            <h1 class="section-title mt-1">Registration complete</h1>
+            <p class="section-subtitle mb-3">Your account has been created for @Model.Email.</p>
+            <p class="mb-4">You will be redirected to the login page in a few seconds.</p>
+
+            <div class="toolbar">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Go to login</a>
+                <a asp-controller="Apartment" asp-action="Index" class="btn btn-outline-dark">Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.href = '@loginUrl';
+        }, 3000);
+    </script>
+}

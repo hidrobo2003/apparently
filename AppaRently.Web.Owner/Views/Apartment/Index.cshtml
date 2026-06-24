@@ -1,0 +1,195 @@
+@model OwnerDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var fromValue = Model.From?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var toValue = Model.To?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var minPriceValue = Model.MinPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+    var maxPriceValue = Model.MaxPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+}
+
+<section class="page-section">
+    <div class="surface mb-4">
+        <div class="surface__header surface__header--split">
+            <div class="hero-copy">
+                <span class="eyebrow">Owner dashboard</span>
+                <h1 class="section-title">Apartments under your management</h1>
+                <p class="section-subtitle mb-0">Review current inventory, filter by status, and inspect portfolio performance over a selected period.</p>
+            </div>
+            <div class="toolbar">
+                <a asp-action="Create" class="btn btn-primary">New apartment</a>
+                <a asp-action="Export"
+                   asp-route-city="@Model.City"
+                   asp-route-department="@Model.Department"
+                   asp-route-minPrice="@minPriceValue"
+                   asp-route-maxPrice="@maxPriceValue"
+                   asp-route-deletedOnly="@Model.DeletedOnly"
+                   asp-route-from="@fromValue"
+                   asp-route-to="@toValue"
+                   class="btn btn-outline-dark">
+                    Export XLSX
+                </a>
+            </div>
+        </div>
+        <div class="surface__body">
+            <form method="get" class="filter-bar">
+                <div>
+                    <label class="form-label" for="City">City</label>
+                    <input id="City" name="City" value="@Model.City" class="form-control" />
+                </div>
+                <div>
+                    <label class="form-label" for="Department">Department</label>
+                    <input id="Department" name="Department" value="@Model.Department" class="form-control" />
+                </div>
+                <div>
+                    <label class="form-label" for="MinPrice">Min price</label>
+                    <input id="MinPrice" name="MinPrice" value="@minPriceValue" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+                <div>
+                    <label class="form-label" for="MaxPrice">Max price</label>
+                    <input id="MaxPrice" name="MaxPrice" value="@maxPriceValue" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+                <div>
+                    <label class="form-label" for="DeletedOnly">Status</label>
+                    <select asp-for="DeletedOnly" class="form-select">
+                        <option value="false">Active apartments</option>
+                        <option value="true">Deleted apartments</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" for="From">From</label>
+                    <input id="From" name="From" value="@fromValue" class="form-control" type="date" />
+                </div>
+                <div>
+                    <label class="form-label" for="To">To</label>
+                    <input id="To" name="To" value="@toValue" class="form-control" type="date" />
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Apply</button>
+                    <a asp-action="Index" class="btn btn-outline-dark flex-grow-1">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="stat-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-card__label">Revenue</div>
+            <div class="stat-card__value">@Model.Metrics.Revenue.ToString("C")</div>
+            <div class="stat-card__meta">Generated in the selected period</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Potential revenue</div>
+            <div class="stat-card__value">@Model.Metrics.PotentialRevenue.ToString("C")</div>
+            <div class="stat-card__meta">Full portfolio capacity for the same period</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Occupancy rate</div>
+            <div class="stat-card__value">@Model.Metrics.OccupancyRate.ToString("0.##")%</div>
+            <div class="stat-card__meta">@Model.Metrics.BookedDays booked days of @Model.Metrics.AvailableDays available</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Profitability</div>
+            <div class="stat-card__value">@Model.Metrics.ProfitabilityRate.ToString("0.##")%</div>
+            <div class="stat-card__meta">Revenue vs. potential revenue</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Avg. reservation</div>
+            <div class="stat-card__value">@Model.Metrics.AverageReservationValue.ToString("C")</div>
+            <div class="stat-card__meta">Average revenue per reservation</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Avg. stay</div>
+            <div class="stat-card__value">@Model.Metrics.AverageStayDays.ToString("0.##") days</div>
+            <div class="stat-card__meta">Average booked nights per reservation</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Tenants</div>
+            <div class="stat-card__value">@Model.Metrics.UniqueTenantCount</div>
+            <div class="stat-card__meta">Unique users in the selected period</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Reservations</div>
+            <div class="stat-card__value">@Model.Metrics.ReservationCount</div>
+            <div class="stat-card__meta">Included in the current report</div>
+        </div>
+    </div>
+
+    <div class="surface">
+        <div class="surface__header surface__header--split">
+            <div>
+                <h2 class="section-title">Apartments</h2>
+                <p class="section-subtitle mb-0">Current portfolio records are listed below.</p>
+            </div>
+            <span class="status-pill status-pill--neutral">@Model.Apartments.Count records</span>
+        </div>
+        <div class="surface__body p-0">
+            @if (!Model.Apartments.Any())
+            {
+                <div class="surface__body">
+                    <p class="mb-0 muted">No apartments match the current filters.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Apartment</th>
+                                <th>Location</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var apartment in Model.Apartments)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@apartment.Title</div>
+                                        <div class="muted text-break-all">@apartment.Address</div>
+                                    </td>
+                                    <td>@apartment.City, @apartment.Department</td>
+                                    <td>@apartment.Price.ToString("C") / day</td>
+                                    <td>
+                                        @if (apartment.DeletedAt is null)
+                                        {
+                                            <span class="status-pill status-pill--ok">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-pill status-pill--danger">Deleted</span>
+                                        }
+                                    </td>
+                                    <td>@apartment.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                    <td>@apartment.UpdatedAt?.ToString("yyyy-MM-dd")</td>
+                                    <td class="text-end">
+                                        @if (apartment.DeletedAt is null)
+                                        {
+                                            <div class="toolbar justify-content-end">
+                                                <a asp-action="Detail" asp-route-id="@apartment.Id" asp-route-from="@fromValue" asp-route-to="@toValue" class="btn btn-sm btn-outline-dark">Open</a>
+                                                <a asp-action="Edit" asp-route-id="@apartment.Id" class="btn btn-sm btn-outline-dark">Edit</a>
+                                                <form asp-action="Destroy" asp-route-id="@apartment.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-dark">Delete</button>
+                                                </form>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="muted">Archived record</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>

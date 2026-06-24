@@ -1,0 +1,52 @@
+@model SuperAdminApartmentDashboardViewModel
+
+@{
+    ViewData["Title"] = "Deleted apartments";
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">SuperAdmin dashboard</span>
+            <h1 class="section-title">Deleted apartments</h1>
+            <p class="section-subtitle">Archived apartment records across the database.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline">Back</a>
+    </div>
+
+    <div class="surface__body">
+        @if (!Model.Apartments.Any())
+        {
+            <p class="muted mb-0">No deleted apartments found.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Owner</th>
+                            <th>Location</th>
+                            <th>Deleted at</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var apartment in Model.Apartments)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="keyvalue__value">@apartment.Title</div>
+                                    <div class="note break-word">@apartment.Address</div>
+                                </td>
+                                <td>@apartment.OwnerFullName</td>
+                                <td>@apartment.City, @apartment.Department</td>
+                                <td>@apartment.DeletedAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

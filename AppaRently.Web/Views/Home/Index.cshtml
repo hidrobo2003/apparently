@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+}
+
+<section class="hero">
+    <div class="hero__inner">
+        <div class="container">
+            <div class="hero__content">
+                <div class="hero__eyebrow">Client portal</div>
+                <h1>Search apartments, save favorites, and book the dates you need.</h1>
+                <p>
+                    Explore available apartments, review the detail page, and keep your reservations organized from one place.
+                </p>
+                <div class="hero__actions">
+                    <a class="btn btn-primary btn-lg" asp-controller="Apartment" asp-action="Index">Open dashboard</a>
+                    <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Login">Login</a>
+                    <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Register">Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

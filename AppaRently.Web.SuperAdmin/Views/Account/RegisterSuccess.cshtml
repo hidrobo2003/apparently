@@ -1,0 +1,25 @@
+@model UserResponse
+
+@{
+    ViewData["Title"] = "Registration completed";
+}
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="stack">
+            <span class="eyebrow">Completed</span>
+            <h1 class="section-title">Account created</h1>
+            <p class="section-subtitle">The new account for @Model.FullName is ready.</p>
+            <p class="note">You will be redirected to the login page in a few seconds.</p>
+            <a class="btn btn-primary" asp-action="Login">Go to login</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Login", "Account")';
+        }, 4000);
+    </script>
+}

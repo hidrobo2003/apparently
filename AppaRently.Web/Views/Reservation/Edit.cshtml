@@ -1,0 +1,37 @@
+﻿@model UpdateReservationRequest
+@{
+    ViewData["Title"] = "Edit reservation";
+    var reservationId = ViewContext.RouteData.Values["id"];
+}
+
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__body">
+            <h1 class="h3 mb-2">Edit reservation</h1>
+            <p class="muted mb-4">Adjust your stay dates. Check-in is set to 2:00 PM and check-out to 12:00 PM.</p>
+
+            <form asp-action="Upgrade" asp-route-id="@reservationId" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="CheckIn" class="form-label"></label>
+                    <input asp-for="CheckIn" class="form-control" type="date" value="@(Model.CheckIn.ToString("yyyy-MM-dd"))" />
+                    <span asp-validation-for="CheckIn" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CheckOut" class="form-label"></label>
+                    <input asp-for="CheckOut" class="form-control" type="date" value="@(Model.CheckOut.ToString("yyyy-MM-dd"))" />
+                    <span asp-validation-for="CheckOut" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save changes</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

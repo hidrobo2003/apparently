@@ -1,0 +1,46 @@
+﻿@model FavoritePageViewModel
+@{
+    ViewData["Title"] = "Favorites";
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="surface mb-4">
+            <div class="surface__header">
+                <h1 class="section-title">Favorites</h1>
+                <p class="section-subtitle">Apartments you have saved for later.</p>
+            </div>
+        </div>
+
+        @if (Model.Favorites.Count == 0)
+        {
+            <div class="surface">
+                <div class="surface__body">
+                    <p class="mb-0 muted">You have no favorite apartments yet.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="favorite-grid">
+                @foreach (var favorite in Model.Favorites)
+                {
+                    <article class="favorite-card">
+                        <div class="favorite-card__body">
+                            <h2 class="h5 mb-1">@favorite.ApartmentTitle</h2>
+                            <div class="card-meta mb-3">@favorite.ApartmentAddress</div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-controller="Apartment" asp-action="Detail" asp-route-id="@favorite.ApartmentId" class="btn btn-primary btn-sm">View details</a>
+                                <form asp-action="Destroy" asp-route-id="@favorite.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-dark btn-sm">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

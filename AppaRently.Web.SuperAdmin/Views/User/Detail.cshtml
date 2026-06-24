@@ -1,0 +1,198 @@
+@model SuperAdminUserDetailViewModel
+
+@{
+    ViewData["Title"] = "User detail";
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">User detail</span>
+            <h1 class="section-title">@Model.User.FullName</h1>
+            <p class="section-subtitle">@Model.Role</p>
+        </div>
+        <div class="toolbar">
+            <form asp-action="Destroy" asp-route-id="@Model.User.Id" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">Delete user</button>
+            </form>
+            <a asp-action="Index" class="btn btn-outline">Back</a>
+        </div>
+    </div>
+
+    <div class="surface__body">
+        <div class="detail-grid">
+            <div class="stack">
+                <div class="surface">
+                    <div class="surface__body">
+                        <div class="keyvalue">
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Email</span>
+                                <span class="keyvalue__value">@Model.User.Email</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">User ID</span>
+                                <span class="keyvalue__value mono break-word">@Model.User.Id</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Created at</span>
+                                <span class="keyvalue__value">@Model.User.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Updated at</span>
+                                <span class="keyvalue__value">@Model.User.UpdatedAt?.ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                            <div class="keyvalue__item">
+                                <span class="keyvalue__label">Status</span>
+                                <span class="keyvalue__value">
+                                    @if (Model.User.DeletedAt is null)
+                                    {
+                                        <span class="status status--active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status status--deleted">Deleted</span>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.IsClient)
+                {
+                    <div class="surface">
+                        <div class="surface__body">
+                            <div class="stat-grid">
+                                <div class="stat">
+                                    <div class="stat__label">Money used</div>
+                                    <div class="stat__value">@Model.TotalMoneyUsed.ToString("C")</div>
+                                    <div class="stat__meta">Total spent inside the platform</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat__label">Reservations</div>
+                                    <div class="stat__value">@Model.Reservations.Count</div>
+                                    <div class="stat__meta">Booking history</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.IsOwner)
+                {
+                    <div class="surface">
+                        <div class="surface__body">
+                            <div class="stat-grid">
+                                <div class="stat">
+                                    <div class="stat__label">Money generated</div>
+                                    <div class="stat__value">@Model.TotalMoneyGenerated.ToString("C")</div>
+                                    <div class="stat__meta">Total earned by the owner</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat__label">Apartments</div>
+                                    <div class="stat__value">@Model.Apartments.Count</div>
+                                    <div class="stat__meta">Listings owned by this user</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="stack">
+                @if (Model.IsClient)
+                {
+                    <div class="surface">
+                        <div class="surface__header">
+                            <h2 class="section-title">Reservation history</h2>
+                            <p class="section-subtitle">Most recent reservations first.</p>
+                        </div>
+                        <div class="surface__body">
+                            @if (!Model.Reservations.Any())
+                            {
+                                <p class="muted mb-0">No reservations found.</p>
+                            }
+                            else
+                            {
+                                <div class="table-wrap">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Apartment</th>
+                                                <th>Check-in</th>
+                                                <th>Check-out</th>
+                                                <th>Price paid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var reservation in Model.Reservations)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="keyvalue__value">@reservation.ApartmentTitle</div>
+                                                        <div class="note break-word">@reservation.ApartmentAddress</div>
+                                                    </td>
+                                                    <td>@reservation.CheckIn.ToString("yyyy-MM-dd")</td>
+                                                    <td>@reservation.CheckOut.ToString("yyyy-MM-dd")</td>
+                                                    <td>@reservation.PricePaid.ToString("C")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.IsOwner)
+                {
+                    <div class="surface">
+                        <div class="surface__header">
+                            <h2 class="section-title">Owned apartments</h2>
+                            <p class="section-subtitle">Revenue generated by each apartment.</p>
+                        </div>
+                        <div class="surface__body">
+                            @if (!Model.Apartments.Any())
+                            {
+                                <p class="muted mb-0">No apartments found.</p>
+                            }
+                            else
+                            {
+                                <div class="table-wrap">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Apartment</th>
+                                                <th>Location</th>
+                                                <th>Daily price</th>
+                                                <th>Generated</th>
+                                                <th>Reservations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var apartment in Model.Apartments)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="keyvalue__value">@apartment.Title</div>
+                                                        <div class="note break-word">@apartment.Address</div>
+                                                    </td>
+                                                    <td>@apartment.City, @apartment.Department</td>
+                                                    <td>@apartment.DailyPrice.ToString("C")</td>
+                                                    <td>@apartment.GeneratedAmount.ToString("C")</td>
+                                                    <td>@apartment.ReservationCount</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

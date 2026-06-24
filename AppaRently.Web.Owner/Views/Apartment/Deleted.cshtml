@@ -1,0 +1,50 @@
+@model IEnumerable<AppaRently.App.DTOs.Apartments.ApartmentResponse>
+
+@{
+    ViewData["Title"] = "Apartments deleted";
+    var fallbackImageUrl = "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80";
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="surface">
+            <div class="surface__header">
+                <h1 class="section-title">Deleted apartments</h1>
+                <p class="section-subtitle">Apartments marked as deleted remain visible here for recovery checks.</p>
+            </div>
+            <div class="surface__body">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>City</th>
+                                <th>Department</th>
+                                <th>Price</th>
+                                <th>Deleted at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var apartment in Model)
+                        {
+                            var imageUrl = string.IsNullOrWhiteSpace(apartment.ImageUrl) ? fallbackImageUrl : apartment.ImageUrl;
+
+                            <tr>
+                                <td>
+                                    <img class="apartment-thumb" src="@imageUrl" alt="@apartment.Title" style="width:72px;height:48px;" />
+                                </td>
+                                <td>@apartment.Title</td>
+                                <td>@apartment.City</td>
+                                <td>@apartment.Department</td>
+                                <td>@apartment.Price.ToString("C")</td>
+                                <td>@apartment.DeletedAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

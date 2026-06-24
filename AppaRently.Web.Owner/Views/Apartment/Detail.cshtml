@@ -1,0 +1,190 @@
+@model OwnerApartmentDetailViewModel
+
+@{
+    ViewData["Title"] = Model.Apartment.Title;
+    var fromValue = Model.From?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var toValue = Model.To?.ToString("yyyy-MM-dd") ?? string.Empty;
+    var imageUrl = string.IsNullOrWhiteSpace(Model.Apartment.ImageUrl)
+        ? "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=1600&q=80"
+        : Model.Apartment.ImageUrl;
+}
+
+<section class="page-section">
+    <div class="detail-layout">
+        <div class="surface">
+            <div class="surface__header surface__header--split">
+                <div class="hero-copy">
+                    <span class="eyebrow">Apartment detail</span>
+                    <h1 class="section-title">@Model.Apartment.Title</h1>
+                    <p class="section-subtitle mb-0">@Model.Apartment.Address, @Model.Apartment.City, @Model.Apartment.Department</p>
+                </div>
+                <div class="toolbar">
+                    <a asp-action="Edit" asp-route-id="@Model.Apartment.Id" class="btn btn-primary">Edit apartment</a>
+                    <a asp-action="Export"
+                       asp-route-id="@Model.Apartment.Id"
+                       asp-route-from="@fromValue"
+                       asp-route-to="@toValue"
+                       class="btn btn-outline-dark">
+                        Export XLSX
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-dark">Back</a>
+                </div>
+            </div>
+            <div class="surface__body">
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="detail-image">
+                            <img src="@imageUrl" alt="@Model.Apartment.Title" class="w-100" style="aspect-ratio: 16 / 9; object-fit: cover;" />
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="kv-list">
+                            <div class="kv-item">
+                                <span class="kv-item__label">Daily price</span>
+                                <span class="kv-item__value">@Model.Apartment.Price.ToString("C") / day</span>
+                            </div>
+                            <div class="kv-item">
+                                <span class="kv-item__label">Favorites</span>
+                                <span class="kv-item__value">@Model.FavoriteCount</span>
+                            </div>
+                            <div class="kv-item">
+                                <span class="kv-item__label">Created</span>
+                                <span class="kv-item__value">@Model.Apartment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                            <div class="kv-item">
+                                <span class="kv-item__label">Updated</span>
+                                <span class="kv-item__value">@Model.Apartment.UpdatedAt?.ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="mb-0">@Model.Apartment.Description</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface">
+            <div class="surface__header">
+                <div class="hero-copy">
+                    <span class="eyebrow">Report period</span>
+                    <h2 class="section-title">Selected dates</h2>
+                    <p class="section-subtitle mb-0">Use this range to recalculate metrics and the export file.</p>
+                </div>
+            </div>
+            <div class="surface__body">
+                <form method="get" class="filter-bar">
+                    <div>
+                        <label class="form-label" for="From">From</label>
+                        <input id="From" name="From" value="@fromValue" class="form-control" type="date" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="To">To</label>
+                        <input id="To" name="To" value="@toValue" class="form-control" type="date" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">Apply</button>
+                        <a asp-action="Detail" asp-route-id="@Model.Apartment.Id" class="btn btn-outline-dark flex-grow-1">Reset</a>
+                    </div>
+                </form>
+
+                <div class="stat-grid mt-4">
+                    <div class="stat-card">
+                        <div class="stat-card__label">Revenue</div>
+                        <div class="stat-card__value">@Model.Metrics.Revenue.ToString("C")</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Potential revenue</div>
+                        <div class="stat-card__value">@Model.Metrics.PotentialRevenue.ToString("C")</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Occupancy rate</div>
+                        <div class="stat-card__value">@Model.Metrics.OccupancyRate.ToString("0.##")%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Profitability</div>
+                        <div class="stat-card__value">@Model.Metrics.ProfitabilityRate.ToString("0.##")%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Avg. reservation</div>
+                        <div class="stat-card__value">@Model.Metrics.AverageReservationValue.ToString("C")</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Avg. stay</div>
+                        <div class="stat-card__value">@Model.Metrics.AverageStayDays.ToString("0.##") days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Tenants</div>
+                        <div class="stat-card__value">@Model.Metrics.UniqueTenantCount</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__label">Reservations</div>
+                        <div class="stat-card__value">@Model.Metrics.ReservationCount</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="surface mt-4">
+        <div class="surface__header surface__header--split">
+            <div>
+                <h2 class="section-title">Availability calendar</h2>
+                <p class="section-subtitle mb-0">Booked days are highlighted for the next 30 days.</p>
+            </div>
+            <div class="toolbar">
+                <span class="status-pill status-pill--ok">Available</span>
+                <span class="status-pill status-pill--danger">Booked</span>
+            </div>
+        </div>
+        <div class="surface__body">
+            <div class="calendar-grid">
+                @foreach (var day in Model.CalendarDays)
+                {
+                    <div class="calendar-day @(day.IsBooked ? "is-booked" : string.Empty) @(day.IsToday ? "is-today" : string.Empty)">
+                        <div class="calendar-day__label">@day.Date.ToString("ddd, MMM d")</div>
+                        <div class="calendar-day__status">
+                            @(day.IsBooked ? "Booked" : "Available")
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="surface mt-4">
+        <div class="surface__header">
+            <h2 class="section-title">Apartment details</h2>
+            <p class="section-subtitle mb-0">Reference information for this listing.</p>
+        </div>
+        <div class="surface__body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="kv-item">
+                        <span class="kv-item__label">Address</span>
+                        <span class="kv-item__value text-break-all">@Model.Apartment.Address</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="kv-item">
+                        <span class="kv-item__label">Location</span>
+                        <span class="kv-item__value">@Model.Apartment.City, @Model.Apartment.Department</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="kv-item">
+                        <span class="kv-item__label">Apartment ID</span>
+                        <span class="kv-item__value text-break-all">@Model.Apartment.Id</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="kv-item">
+                        <span class="kv-item__label">Owner ID</span>
+                        <span class="kv-item__value text-break-all">@Model.Apartment.OwnerId</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

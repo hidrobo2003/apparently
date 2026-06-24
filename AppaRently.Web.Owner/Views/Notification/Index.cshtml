@@ -1,0 +1,71 @@
+@model IReadOnlyList<NotificationResponse>
+@{
+    ViewData["Title"] = "Notifications";
+    var unreadOnly = ViewData["UnreadOnly"] as bool? ?? false;
+}
+
+<section class="surface">
+    <div class="surface__header surface__header--split">
+        <div class="stack">
+            <span class="eyebrow">Notifications</span>
+            <h1 class="section-title">Inbox</h1>
+            <p class="section-subtitle mb-0">Updates related to your portfolio and reservations.</p>
+        </div>
+        <div class="toolbar">
+            <a asp-action="Index" asp-route-unreadOnly="true" class="btn btn-outline @(unreadOnly ? "active" : string.Empty)">Unread</a>
+            <a asp-action="Index" class="btn btn-outline @(!unreadOnly ? "active" : string.Empty)">All</a>
+            <form asp-action="ReadAll" asp-route-unreadOnly="@unreadOnly" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary btn-small">Mark all read</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="surface__body">
+        @if (!Model.Any())
+        {
+            <p class="muted mb-0">No notifications found.</p>
+        }
+        else
+        {
+            <div class="stack gap-3">
+                @foreach (var notification in Model)
+                {
+                    <div class="surface">
+                        <div class="surface__body">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h2 class="h5 mb-0">@notification.Title</h2>
+                                        @if (!notification.IsRead)
+                                        {
+                                            <span class="status status--active">New</span>
+                                        }
+                                    </div>
+                                    <div class="note">@notification.Type</div>
+                                </div>
+                                <div class="note">@notification.CreatedAt.ToString("yyyy-MM-dd HH:mm")</div>
+                            </div>
+
+                            <p class="mt-3 mb-3">@notification.Body</p>
+
+                            <div class="toolbar">
+                                @if (!string.IsNullOrWhiteSpace(notification.ActionUrl))
+                                {
+                                    <a href="@notification.ActionUrl" class="btn btn-small btn-outline">Open</a>
+                                }
+                                @if (!notification.IsRead)
+                                {
+                                    <form asp-action="Read" asp-route-id="@notification.Id" asp-route-unreadOnly="@unreadOnly" method="post" class="inline-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-small btn-outline">Mark read</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

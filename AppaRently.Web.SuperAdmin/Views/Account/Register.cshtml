@@ -1,0 +1,46 @@
+@model CreateUserRequest
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="stack">
+            <div>
+                <span class="eyebrow">Access</span>
+                <h1 class="section-title">Create account</h1>
+                <p class="section-subtitle">Register a new SuperAdmin account.</p>
+            </div>
+
+            <form method="post" class="stack">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="note"></div>
+
+                <div class="field">
+                    <label class="label" asp-for="FullName"></label>
+                    <input class="input" asp-for="FullName" />
+                    <span asp-validation-for="FullName" class="note"></span>
+                </div>
+
+                <div class="field">
+                    <label class="label" asp-for="Email"></label>
+                    <input class="input" asp-for="Email" />
+                    <span asp-validation-for="Email" class="note"></span>
+                </div>
+
+                <div class="field">
+                    <label class="label" asp-for="Password"></label>
+                    <input class="input" asp-for="Password" type="password" />
+                    <span asp-validation-for="Password" class="note"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+
+            <p class="note mb-0">
+                Already have an account? <a asp-action="Login">Sign in</a>.
+            </p>
+        </div>
+    </div>
+</section>

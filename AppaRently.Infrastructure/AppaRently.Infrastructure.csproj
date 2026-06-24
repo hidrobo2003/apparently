@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\AppaRently.Domain\AppaRently.Domain.csproj" />
+    <Compile Include="..\AppaRently.App\ServiceResponse\ServiceResponse.cs" Link="Shared\ServiceResponse\ServiceResponse.cs" />
+    <Compile Include="..\AppaRently.App\DTOs\UserDto.cs" Link="Shared\DTOs\UserDto.cs" />
+    <Compile Include="..\AppaRently.App\DTOs\ApartmentDto.cs" Link="Shared\DTOs\ApartmentDto.cs" />
+    <Compile Include="..\AppaRently.App\DTOs\ReservationDto.cs" Link="Shared\DTOs\ReservationDto.cs" />
+    <Compile Include="..\AppaRently.App\DTOs\FavoriteDto.cs" Link="Shared\DTOs\FavoriteDto.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IUserService.cs" Link="Shared\Interfaces\IUserService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IApartmentService.cs" Link="Shared\Interfaces\IApartmentService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IReservationService.cs" Link="Shared\Interfaces\IReservationService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IFavoriteService.cs" Link="Shared\Interfaces\IFavoriteService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IJwtTokenService.cs" Link="Shared\Interfaces\IJwtTokenService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IEmailNotificationService.cs" Link="Shared\Interfaces\IEmailNotificationService.cs" />
+    <Compile Include="..\AppaRently.App\Interfaces\IAppNotificationService.cs" Link="Shared\Interfaces\IAppNotificationService.cs" />
+    <Compile Include="..\AppaRently.App\DTOs\Notifications\NotificationDto.cs" Link="Shared\DTOs\Notifications\NotificationDto.cs" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Factories\" />
+    <Folder Include="Seeders\" />
+  </ItemGroup>
+
+</Project>

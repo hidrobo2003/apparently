@@ -1,0 +1,35 @@
+﻿@model ReservationResponse
+@{
+    ViewData["Title"] = "Reservation";
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="surface">
+            <div class="surface__body">
+                <h1 class="h3 mb-3">@Model.ApartmentTitle</h1>
+                <p class="muted mb-4">@Model.ApartmentAddress</p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="muted">Check-in</div>
+                        <div>@Model.CheckIn.ToString("yyyy-MM-dd")</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="muted">Check-out</div>
+                        <div>@Model.CheckOut.ToString("yyyy-MM-dd")</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="muted">Created</div>
+                        <div>@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Apartment" asp-action="Detail" asp-route-id="@Model.ApartmentId" class="btn btn-primary">View apartment</a>
+                    <a asp-action="Index" class="btn btn-outline-dark">Back to reservations</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
