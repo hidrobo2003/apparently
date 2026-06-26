@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<JwtTokenResponse>> Login([FromBody] LoginRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email.Trim());
-        if (user is null || user.DeletedAt is not null || !await _userManager.IsInRoleAsync(user, AppaRentlyRoles.Client))
+        if (user is null || user.DeletedAt is not null || !await HasOnlyRoleAsync(user, AppaRentlyRoles.Client))
         {
             return Unauthorized(new { message = "Invalid login attempt." });
         }
@@ -85,5 +85,12 @@ public class AuthController : ControllerBase
         }
 
         return Ok(tokenResponse);
+    }
+
+    private async Task<bool> HasOnlyRoleAsync(ApplicationUser user, string expectedRole)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.Count == 1 &&
+               string.Equals(roles[0], expectedRole, StringComparison.Ordinal);
     }
 }

@@ -22,7 +22,7 @@
                             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                             if (!string.IsNullOrWhiteSpace(userId))
                             {
-                                unreadNotifications = await NotificationService.CountUnreadAsync(userId);
+                                unreadNotifications = await NotificationService.CountUnreadAsync(userId, favoritesOnly: true);
                             }
                         }
                     }

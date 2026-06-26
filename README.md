@@ -6,7 +6,7 @@ Short-stay rental platform built with ASP.NET Core on .NET 10, with three MVC fr
 
 - Docker and Docker Compose
 - .NET 10 SDK, only if you want to run the solution outside containers
-- PostgreSQL installed locally and running on `localhost:5432`
+- PostgreSQL installed locally and running on `localhost:5433`
 
 ## Start the environment
 
@@ -23,7 +23,23 @@ That command starts:
 
 When running through Docker Compose, the database is exposed on `localhost:5433` for tools like DBeaver. If you run the app outside containers, keep using your local PostgreSQL on `localhost:5432`.
 
-For real Gmail delivery, configure a valid Gmail app password in `Smtp:Password` or through `Smtp__Password`. Gmail will reject normal account passwords for SMTP in most setups.
+For real Gmail delivery, configure a valid Gmail app password in `Smtp:Password` or through `Smtp__Password`. Gmail will reject normal account passwords for SMTP in most setups. The SMTP settings used by the app are `Host`, `Port`, `EnableSsl`, `UserName`, `Password`, `FromEmail`, and `FromName`.
+
+The reminder worker is enabled through `Smtp:EnableReminderWorker`. When it is `true`, the infrastructure layer starts a background service that sends reservation reminder emails and creates reminder notifications.
+
+## Configuration and authentication
+
+Each frontend has its own `appsettings.json` because it is a separate ASP.NET Core application with its own host and deployment boundary.
+
+- `AppaRently.Web`: client portal
+- `AppaRently.Web.Owner`: owner portal
+- `AppaRently.Web.SuperAdmin`: administrative portal
+
+Shared values such as database connection, JWT signing settings, and SMTP defaults are repeated across those files for convenience. Portal-specific settings stay separate, especially the authentication cookie name, so the browser does not reuse a session from one portal in another.
+
+Authentication is handled by ASP.NET Core Identity plus JWT bearer validation. Authorization is enforced with `[Authorize]` attributes and role checks in each portal.
+
+The browser session is isolated per portal with different authentication cookie names, so logging into owner does not automatically sign you into client or superadmin.
 
 ## Seed accounts
 
@@ -47,19 +63,38 @@ Each owner also receives 3 sample apartments.
 
 The app uses one shared data model and three separate UIs, with common startup initialization through `SeedAppaRentlyAsync()`.
 
+## Summary
+
+AppaRently is split into a shared core and three role-based portals. The shared core keeps the domain model, service contracts, persistence, migrations, seeding, notifications, and SMTP/JWT plumbing in one place so the business rules stay consistent.
+
+The three frontends are intentionally separate because each one serves a different audience and needs its own session boundary, navigation, and authorization rules. Client, owner, and superadmin all authenticate through ASP.NET Core Identity, but each portal uses a different authentication cookie so a login in one app does not spill into the others.
+
+The client portal is intentionally narrower: it focuses on catalog, favorites, reservations, and notifications tied to favorite apartments. The owner portal focuses on listings, portfolio metrics, exports, and reservation notifications for apartments they own. The superadmin portal covers users, apartments, metrics, and system-wide operations.
+
+The main design choices were:
+
+- shared infrastructure instead of duplicated business logic
+- separate MVC apps instead of one mixed UI
+- Identity plus JWT for authentication
+- role-based authorization with explicit portal checks
+- Docker-first startup with automatic migration and seeding
+- Gmail SMTP with app passwords for outbound mail
+
 ## Key technical decisions
 
 - Strict availability: reservations are validated against overlaps, and date-range apartment searches exclude occupied apartments.
 - Standardized times: every reservation is normalized to `2:00 PM` check-in and `12:00 PM` check-out.
 - Soft delete with cascade: deleting a client, apartment, or owner archives dependent records to preserve history.
 - In-app notifications: each portal exposes an inbox, unread counter, and mark-as-read actions.
+- Client notifications are limited to notifications tied to favorite apartments.
+- Owner notifications are limited to reservation created and cancelled events on apartments they own.
 - Business metrics: owner and superadmin portals expose revenue, potential revenue, occupancy, profitability, average reservation value, average stay, and unique tenants, with selectable reporting periods.
 - Docker-first startup: the full stack starts with a single command and uses your local PostgreSQL instance as the shared database.
 
 ## Useful areas
 
 - Client: catalog, favorites, reservations, and notifications
-- Owner: dashboard, inventory, Excel export, and notifications
+- Owner: dashboard, inventory, Excel export, and reservation notifications
 - SuperAdmin: users, apartments, metrics, and notifications
 
 Made by:

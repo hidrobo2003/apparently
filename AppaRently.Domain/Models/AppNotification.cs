@@ -25,6 +25,8 @@ public class AppNotification
     [MaxLength(500)]
     public string? ActionUrl { get; set; }
 
+    public Guid? ApartmentId { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ReadAt { get; set; }
@@ -32,4 +34,5 @@ public class AppNotification
     public DateTime? DeletedAt { get; set; }
 
     public ApplicationUser? User { get; set; }
+    public Apartment? Apartment { get; set; }
 }

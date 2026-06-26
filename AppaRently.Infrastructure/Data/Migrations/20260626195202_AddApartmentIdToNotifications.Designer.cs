@@ -3,17 +3,20 @@ using System;
 using AppaRently.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace AppaRently.Infrastructure.Migrations
+namespace AppaRently.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppaRentlyDbContext))]
-    partial class AppaRentlyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626195202_AddApartmentIdToNotifications")]
+    partial class AddApartmentIdToNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

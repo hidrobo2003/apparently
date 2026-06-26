@@ -24,7 +24,7 @@ public class NotificationController : ClientControllerBase
             return RedirectToAction("Login", "Account");
         }
 
-        var notifications = await _notificationService.GetInboxAsync(userId, unreadOnly);
+        var notifications = await _notificationService.GetInboxAsync(userId, unreadOnly, favoritesOnly: true);
         ViewData["UnreadOnly"] = unreadOnly;
         return View(notifications);
     }

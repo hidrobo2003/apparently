@@ -523,31 +523,12 @@ public sealed class ApartmentService : IApartmentService
                 cancellationToken: cancellationToken);
         }
 
-        var userIds = await LoadApartmentStakeholderUserIdsAsync(apartment.Id, cancellationToken: cancellationToken);
-        userIds.Add(apartment.OwnerId);
-
-        foreach (var userId in userIds)
-        {
-            await _appNotificationService.CreateAsync(
-                userId,
-                "Apartment updated",
-                body,
-                "apartment.updated",
-                $"/Apartment/Detail/{apartment.Id}",
-                cancellationToken);
-        }
     }
 
     private async Task NotifyApartmentDeletedAsync(Apartment apartment, CancellationToken cancellationToken)
     {
         var body = BuildApartmentDeletedBody(apartment, apartment.Owner?.FullName ?? string.Empty);
         var emails = await LoadApartmentStakeholderEmailsAsync(apartment.Id, includeDeletedRelationships: true, cancellationToken);
-        var ownerEmail = apartment.Owner?.Email;
-        if (!string.IsNullOrWhiteSpace(ownerEmail))
-        {
-            emails.Add(ownerEmail.Trim());
-        }
-
         foreach (var email in emails)
         {
             await _emailNotificationService.SendAsync(
@@ -556,32 +537,13 @@ public sealed class ApartmentService : IApartmentService
                 body,
                 cancellationToken: cancellationToken);
         }
-
-        var userIds = await LoadApartmentStakeholderUserIdsAsync(apartment.Id, includeDeletedRelationships: true, cancellationToken);
-        userIds.Add(apartment.OwnerId);
-
-        foreach (var userId in userIds)
-        {
-            await _appNotificationService.CreateAsync(
-                userId,
-                "Apartment removed",
-                body,
-                "apartment.deleted",
-                null,
-                cancellationToken);
-        }
     }
 
-    private async Task NotifyApartmentCreatedAsync(Apartment apartment, CancellationToken cancellationToken)
+    private static Task NotifyApartmentCreatedAsync(Apartment apartment, CancellationToken cancellationToken)
     {
-        var body = BuildApartmentCreatedBody(apartment, apartment.Owner?.FullName ?? string.Empty);
-        await _appNotificationService.CreateAsync(
-            apartment.OwnerId,
-            "Apartment created",
-            body,
-            "apartment.created",
-            $"/Apartment/Detail/{apartment.Id}",
-            cancellationToken);
+        _ = apartment;
+        _ = cancellationToken;
+        return Task.CompletedTask;
     }
 
     private async Task<HashSet<string>> LoadApartmentStakeholderEmailsAsync(
@@ -697,16 +659,6 @@ public sealed class ApartmentService : IApartmentService
         return
             $"Hello,{Environment.NewLine}{Environment.NewLine}" +
             $"The apartment '{apartment.Title}' has been updated.{Environment.NewLine}" +
-            $"Owner: {ownerName}{Environment.NewLine}" +
-            $"Location: {apartment.Address}, {apartment.City}, {apartment.Department}{Environment.NewLine}" +
-            $"Daily price: {apartment.Price:C}";
-    }
-
-    private static string BuildApartmentCreatedBody(Apartment apartment, string ownerName)
-    {
-        return
-            $"Hello,{Environment.NewLine}{Environment.NewLine}" +
-            $"The apartment '{apartment.Title}' has been created successfully.{Environment.NewLine}" +
             $"Owner: {ownerName}{Environment.NewLine}" +
             $"Location: {apartment.Address}, {apartment.City}, {apartment.Department}{Environment.NewLine}" +
             $"Daily price: {apartment.Price:C}";

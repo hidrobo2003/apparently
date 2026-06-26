@@ -17,6 +17,7 @@ public sealed class AppNotificationConfiguration : IEntityTypeConfiguration<AppN
 
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => new { x.UserId, x.ReadAt });
+        builder.HasIndex(x => x.ApartmentId);
         builder.HasIndex(x => x.CreatedAt);
         builder.HasIndex(x => x.DeletedAt);
 
@@ -24,6 +25,11 @@ public sealed class AppNotificationConfiguration : IEntityTypeConfiguration<AppN
             .WithMany(x => x.Notifications)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Apartment)
+            .WithMany()
+            .HasForeignKey(x => x.ApartmentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasQueryFilter(x => x.DeletedAt == null);
     }

@@ -52,7 +52,7 @@ public class AccountController : Controller
         }
 
         var user = await _userManager.FindByEmailAsync(request.Email.Trim());
-        if (user is null || user.DeletedAt is not null || !await _userManager.IsInRoleAsync(user, AppaRentlyRoles.Owner))
+        if (user is null || user.DeletedAt is not null || !await HasOnlyRoleAsync(user, AppaRentlyRoles.Owner))
         {
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(request);
@@ -222,6 +222,13 @@ public class AccountController : Controller
         {
             Path = "/"
         });
+    }
+
+    private async Task<bool> HasOnlyRoleAsync(ApplicationUser user, string expectedRole)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.Count == 1 &&
+               string.Equals(roles[0], expectedRole, StringComparison.Ordinal);
     }
 
     private static string BuildPasswordResetBody(string fullName, string resetLink)

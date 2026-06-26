@@ -402,6 +402,7 @@ public sealed class ReservationService : IReservationService
                 "Reservation confirmed",
                 BuildReservationCreatedBody(reservation, CalculateReservationPrice(reservation)),
                 "reservation.created",
+                reservation.ApartmentId,
                 $"/Reservation/Show/{reservation.Id}",
                 cancellationToken);
         }
@@ -413,6 +414,7 @@ public sealed class ReservationService : IReservationService
                 "New reservation received",
                 BuildOwnerReservationCreatedBody(reservation, CalculateReservationPrice(reservation)),
                 "reservation.created",
+                reservation.ApartmentId,
                 $"/Apartment/Detail/{reservation.ApartmentId}",
                 cancellationToken);
         }
@@ -427,20 +429,11 @@ public sealed class ReservationService : IReservationService
                 "Reservation updated",
                 BuildReservationUpdatedBody(reservation, CalculateReservationPrice(reservation)),
                 "reservation.updated",
+                reservation.ApartmentId,
                 $"/Reservation/Show/{reservation.Id}",
                 cancellationToken);
         }
 
-        if (reservation.Apartment?.OwnerId is { Length: > 0 } ownerId)
-        {
-            await _appNotificationService.CreateAsync(
-                ownerId,
-                "Reservation updated",
-                BuildOwnerReservationUpdatedBody(reservation, CalculateReservationPrice(reservation)),
-                "reservation.updated",
-                $"/Apartment/Detail/{reservation.ApartmentId}",
-                cancellationToken);
-        }
     }
 
     private async Task SendReservationCancelledNotificationsAsync(Reservation reservation, CancellationToken cancellationToken)
@@ -452,6 +445,7 @@ public sealed class ReservationService : IReservationService
                 "Reservation cancelled",
                 BuildReservationCancelledBody(reservation),
                 "reservation.cancelled",
+                reservation.ApartmentId,
                 $"/Reservation/Show/{reservation.Id}",
                 cancellationToken);
         }
@@ -463,6 +457,7 @@ public sealed class ReservationService : IReservationService
                 "Reservation cancelled",
                 BuildOwnerReservationCancelledBody(reservation),
                 "reservation.cancelled",
+                reservation.ApartmentId,
                 $"/Apartment/Detail/{reservation.ApartmentId}",
                 cancellationToken);
         }
@@ -515,17 +510,6 @@ public sealed class ReservationService : IReservationService
             $"Check-out: {reservation.CheckOut:yyyy-MM-dd HH:mm}{Environment.NewLine}" +
             $"Estimated total: {pricePaid:C}{Environment.NewLine}" +
             $"Address: {reservation.Apartment?.Address}";
-    }
-
-    private static string BuildOwnerReservationUpdatedBody(Reservation reservation, decimal pricePaid)
-    {
-        return
-            $"Hello,{Environment.NewLine}{Environment.NewLine}" +
-            $"A reservation was updated for {reservation.Apartment?.Title}.{Environment.NewLine}" +
-            $"Tenant: {reservation.User?.FullName} ({reservation.User?.Email}){Environment.NewLine}" +
-            $"Check-in: {reservation.CheckIn:yyyy-MM-dd HH:mm}{Environment.NewLine}" +
-            $"Check-out: {reservation.CheckOut:yyyy-MM-dd HH:mm}{Environment.NewLine}" +
-            $"Estimated revenue: {pricePaid:C}";
     }
 
     private static string BuildOwnerReservationCancelledBody(Reservation reservation)

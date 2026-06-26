@@ -6,6 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddAppaRentlyInfrastructureServices(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "AppaRently.Client.Auth";
+    options.Cookie.Path = "/";
+});
 
 var app = builder.Build();
 

@@ -7,6 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddAppaRentlyInfrastructureServices(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "AppaRently.Owner.Auth";
+    options.Cookie.Path = "/";
+});
 builder.Services.AddScoped<IOwnerPortalService, OwnerPortalService>();
 
 var app = builder.Build();

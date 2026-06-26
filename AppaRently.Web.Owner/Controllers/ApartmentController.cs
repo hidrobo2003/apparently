@@ -171,7 +171,7 @@ public class ApartmentController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Export(Guid id, [FromQuery] OwnerReportPeriodViewModel request)
+    public async Task<IActionResult> ExportApartment(Guid id, [FromQuery] OwnerReportPeriodViewModel request)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(ownerId))

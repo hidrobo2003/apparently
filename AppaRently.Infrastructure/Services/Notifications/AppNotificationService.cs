@@ -20,6 +20,7 @@ public sealed class AppNotificationService : IAppNotificationService
         string title,
         string body,
         string type,
+        Guid? apartmentId = null,
         string? actionUrl = null,
         CancellationToken cancellationToken = default)
     {
@@ -31,6 +32,7 @@ public sealed class AppNotificationService : IAppNotificationService
             Body = body.Trim(),
             Type = type.Trim(),
             ActionUrl = NormalizeOptionalString(actionUrl),
+            ApartmentId = apartmentId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -43,6 +45,7 @@ public sealed class AppNotificationService : IAppNotificationService
     public async Task<IReadOnlyList<NotificationResponse>> GetInboxAsync(
         string userId,
         bool unreadOnly = false,
+        bool favoritesOnly = false,
         int limit = 20,
         CancellationToken cancellationToken = default)
     {
@@ -50,6 +53,12 @@ public sealed class AppNotificationService : IAppNotificationService
             .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(x => x.UserId == userId && x.DeletedAt == null);
+
+        if (favoritesOnly)
+        {
+            var favoriteApartmentIds = await GetFavoriteApartmentIdsAsync(userId, cancellationToken);
+            query = query.Where(x => x.ApartmentId.HasValue && favoriteApartmentIds.Contains(x.ApartmentId.Value));
+        }
 
         if (unreadOnly)
         {
@@ -64,12 +73,23 @@ public sealed class AppNotificationService : IAppNotificationService
         return notifications.Select(MapToDto).ToList();
     }
 
-    public Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<int> CountUnreadAsync(
+        string userId,
+        bool favoritesOnly = false,
+        CancellationToken cancellationToken = default)
     {
-        return _dbContext.Notifications
+        var query = _dbContext.Notifications
             .IgnoreQueryFilters()
             .AsNoTracking()
-            .CountAsync(x => x.UserId == userId && x.DeletedAt == null && x.ReadAt == null, cancellationToken);
+            .Where(x => x.UserId == userId && x.DeletedAt == null && x.ReadAt == null);
+
+        if (favoritesOnly)
+        {
+            var favoriteApartmentIds = await GetFavoriteApartmentIdsAsync(userId, cancellationToken);
+            query = query.Where(x => x.ApartmentId.HasValue && favoriteApartmentIds.Contains(x.ApartmentId.Value));
+        }
+
+        return await query.CountAsync(cancellationToken);
     }
 
     public async Task<bool> MarkAsReadAsync(Guid notificationId, string userId, CancellationToken cancellationToken = default)
@@ -120,6 +140,7 @@ public sealed class AppNotificationService : IAppNotificationService
             Body = notification.Body,
             Type = notification.Type,
             ActionUrl = notification.ActionUrl,
+            ApartmentId = notification.ApartmentId,
             CreatedAt = notification.CreatedAt,
             ReadAt = notification.ReadAt,
             DeletedAt = notification.DeletedAt
@@ -130,5 +151,17 @@ public sealed class AppNotificationService : IAppNotificationService
     {
         var trimmed = value?.Trim();
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
+
+    private async Task<HashSet<Guid>> GetFavoriteApartmentIdsAsync(string userId, CancellationToken cancellationToken)
+    {
+        var apartmentIds = await _dbContext.Favorites
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && x.DeletedAt == null)
+            .Select(x => x.ApartmentId)
+            .ToListAsync(cancellationToken);
+
+        return apartmentIds.ToHashSet();
     }
 }

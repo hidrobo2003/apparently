@@ -31,7 +31,15 @@ public static class DependencyInjection
         services.AddDbContext<AppaRentlyDbContext>(options =>
             options.UseNpgsql(connectionString));
 
-        var dataProtectionKeyPath = Path.Combine("/home/app", ".aspnet", "DataProtection-Keys");
+        var dataProtectionKeyPath = configuration["DataProtection:KeyPath"];
+        if (string.IsNullOrWhiteSpace(dataProtectionKeyPath))
+        {
+            dataProtectionKeyPath = Path.Combine(
+                Path.GetTempPath(),
+                "AppaRently",
+                "DataProtection-Keys");
+        }
+
         Directory.CreateDirectory(dataProtectionKeyPath);
         services.AddDataProtection()
             .SetApplicationName("AppaRently")

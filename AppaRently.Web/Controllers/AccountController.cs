@@ -48,7 +48,7 @@ public class AccountController : Controller
         }
 
         var user = await _userManager.FindByEmailAsync(request.Email.Trim());
-        if (user is null || user.DeletedAt is not null || !await _userManager.IsInRoleAsync(user, AppaRentlyRoles.Client))
+        if (user is null || user.DeletedAt is not null || !await HasOnlyRoleAsync(user, AppaRentlyRoles.Client))
         {
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(request);
@@ -126,5 +126,12 @@ public class AccountController : Controller
         return !path.EndsWith("/Storage", StringComparison.OrdinalIgnoreCase) &&
                !path.EndsWith("/Upgrade", StringComparison.OrdinalIgnoreCase) &&
                !path.EndsWith("/Destroy", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<bool> HasOnlyRoleAsync(ApplicationUser user, string expectedRole)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.Count == 1 &&
+               string.Equals(roles[0], expectedRole, StringComparison.Ordinal);
     }
 }

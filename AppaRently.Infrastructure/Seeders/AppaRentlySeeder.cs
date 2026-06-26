@@ -81,7 +81,7 @@ public sealed class AppaRentlySeeder
         if (existingUser is not null)
         {
             await RestoreSeedUserAsync(existingUser, seed, cancellationToken);
-            await EnsureUserRoleAsync(existingUser, seed.Role);
+            await EnsureExclusiveUserRoleAsync(existingUser, seed.Role);
             return existingUser;
         }
 
@@ -154,6 +154,34 @@ public sealed class AppaRentlySeeder
         if (!result.Succeeded)
         {
             throw CreateSeedException($"Unable to assign role '{role}' to '{user.Email}'.", result.Errors);
+        }
+    }
+
+    private async Task EnsureExclusiveUserRoleAsync(ApplicationUser user, string role)
+    {
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        var rolesToRemove = currentRoles
+            .Where(x => !string.Equals(x, role, StringComparison.Ordinal))
+            .ToList();
+
+        if (rolesToRemove.Count > 0)
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            if (!removeResult.Succeeded)
+            {
+                throw CreateSeedException($"Unable to normalize roles for '{user.Email}'.", removeResult.Errors);
+            }
+        }
+
+        if (currentRoles.Any(x => string.Equals(x, role, StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        var addResult = await _userManager.AddToRoleAsync(user, role);
+        if (!addResult.Succeeded)
+        {
+            throw CreateSeedException($"Unable to assign role '{role}' to '{user.Email}'.", addResult.Errors);
         }
     }
 

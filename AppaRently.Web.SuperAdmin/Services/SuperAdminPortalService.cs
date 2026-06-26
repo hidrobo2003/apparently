@@ -464,8 +464,8 @@ public sealed class SuperAdminPortalService : ISuperAdminPortalService
 
     private static (DateTime start, DateTime endExclusive) NormalizeRange(DateTime? from, DateTime? to)
     {
-        var endInclusive = (to ?? DateTime.UtcNow.Date).Date;
-        var start = (from ?? endInclusive.AddDays(-(DefaultReportDays - 1))).Date;
+        var endInclusive = AsUtcDate(to ?? DateTime.UtcNow.Date);
+        var start = AsUtcDate(from ?? endInclusive.AddDays(-(DefaultReportDays - 1)));
 
         if (endInclusive < start)
         {
@@ -473,6 +473,11 @@ public sealed class SuperAdminPortalService : ISuperAdminPortalService
         }
 
         return (start, endInclusive.AddDays(1));
+    }
+
+    private static DateTime AsUtcDate(DateTime value)
+    {
+        return DateTime.SpecifyKind(value.Date, DateTimeKind.Utc);
     }
 
     private static UserResponse MapToUserResponse(ApplicationUser user, string role) => new()

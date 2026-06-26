@@ -452,8 +452,8 @@ public sealed class OwnerPortalService : IOwnerPortalService
 
     private static (DateTime start, DateTime endInclusive, DateTime endExclusive) NormalizeRange(DateTime? from, DateTime? to)
     {
-        var endInclusive = (to ?? DateTime.UtcNow.Date).Date;
-        var start = (from ?? endInclusive.AddDays(-(DefaultReportDays - 1))).Date;
+        var endInclusive = AsUtcDate(to ?? DateTime.UtcNow.Date);
+        var start = AsUtcDate(from ?? endInclusive.AddDays(-(DefaultReportDays - 1)));
 
         if (endInclusive < start)
         {
@@ -461,5 +461,10 @@ public sealed class OwnerPortalService : IOwnerPortalService
         }
 
         return (start, endInclusive, endInclusive.AddDays(1));
+    }
+
+    private static DateTime AsUtcDate(DateTime value)
+    {
+        return DateTime.SpecifyKind(value.Date, DateTimeKind.Utc);
     }
 }

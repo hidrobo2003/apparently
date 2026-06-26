@@ -86,6 +86,7 @@ public sealed class ReservationReminderBackgroundService : BackgroundService
                         "Reservation starts soon",
                         BuildStartReminderBody(reservation),
                         "reservation.reminder.start",
+                        reservation.ApartmentId,
                         $"/Reservation/Show/{reservation.Id}",
                         cancellationToken);
                 }
@@ -107,6 +108,7 @@ public sealed class ReservationReminderBackgroundService : BackgroundService
                         "Reservation ends soon",
                         BuildEndReminderBody(reservation),
                         "reservation.reminder.end",
+                        reservation.ApartmentId,
                         $"/Reservation/Show/{reservation.Id}",
                         cancellationToken);
                 }
