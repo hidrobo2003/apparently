@@ -41,6 +41,20 @@ Authentication is handled by ASP.NET Core Identity plus JWT bearer validation. A
 
 The browser session is isolated per portal with different authentication cookie names, so logging into owner does not automatically sign you into client or superadmin.
 
+## Technology Stack
+
+- .NET 10 / ASP.NET Core MVC: web applications, controllers, views, routing, model binding, and server-side rendering.
+- ASP.NET Core Identity: user accounts, passwords, roles, sign-in, sign-out, and authentication cookies.
+- JWT bearer authentication: token validation for API-style auth flows and shared identity across entry points.
+- Entity Framework Core: ORM for the domain model, queries, migrations, and data seeding.
+- PostgreSQL with Npgsql: relational database and .NET provider used by EF Core.
+- Docker and Docker Compose: local orchestration for the database and the three web apps.
+- SMTP via `System.Net.Mail`: outbound email delivery, including reservation emails and reminders.
+- Bootstrap: layout, responsive grid, forms, buttons, and basic UI primitives.
+- jQuery: legacy client-side helper scripts where needed by the UI.
+- Excel generation via `AppaRently.Web.Owner.Services.XlsxReportWriter`: custom `.xlsx` creation for owner dashboard and apartment reports.
+- Data Protection: persistent protection keys for cookies and other ASP.NET Core protected payloads.
+
 ## Seed accounts
 
 On startup, the app runs migrations and seeding automatically. If the database is empty, it creates:
@@ -95,6 +109,7 @@ The main design choices were:
 
 - Client: catalog, favorites, reservations, and notifications
 - Owner: dashboard, inventory, Excel export, and reservation notifications
+- Owner exports are assembled by `OwnerPortalService` and written to `.xlsx` by `XlsxReportWriter`.
 - SuperAdmin: users, apartments, metrics, and notifications
 
 Made by:
